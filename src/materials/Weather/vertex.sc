@@ -72,4 +72,3 @@ void main() {
 
   gl_Position = pos;
 }
-

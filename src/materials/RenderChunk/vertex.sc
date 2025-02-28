@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_depth
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -11,6 +11,8 @@ uniform vec4 RenderChunkFogAlpha;
 uniform vec4 FogAndDistanceControl;
 uniform vec4 ViewPositionAndTime;
 uniform vec4 FogColor;
+
+#define NL_CLOUD_PARAMS(x) NL_CLOUD2##x##STEPS, NL_CLOUD2##x##THICKNESS, NL_CLOUD2##x##RAIN_THICKNESS, NL_CLOUD2##x##VELOCITY, NL_CLOUD2##x##SCALE, NL_CLOUD2##x##DENSITY, NL_CLOUD2##x##SHAPE
 
 void main() {
   #ifdef INSTANCING
@@ -22,7 +24,7 @@ void main() {
   vec3 worldPos = mul(model, vec4(a_position, 1.0)).xyz;
 
   #if !(defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY) || defined(INSTANCING))
-
+  
   #ifdef NL_CHUNK_LOAD_ANIM
     worldPos.y -= NL_CHUNK_LOAD_ANIM*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x;
   #endif
@@ -89,7 +91,7 @@ void main() {
   vec3 light = nlLighting(skycol, env, worldPos, torchColor, a_color0.rgb, FogColor.rgb, uv1, lit, isTree, shade, t);
 
   #if defined(ALPHA_TEST) && (defined(NL_PLANTS_WAVE) || defined(NL_LANTERN_WAVE)) && !defined(RENDER_AS_BILLBOARDS)
-    nlWave(worldPos, light, env.rainFactor, uv1, lit, a_texcoord0, bPos, a_color0, cPos, tiledCpos, t, isColored, camDis, isTree);
+    nlWave(worldPos, light, env.rainFactor, uv1, lit, a_texcoord0, bPos, a_color0, cPos, tiledCpos, t, isColored, camDis, isTree, FogColor.rgb);
   #endif
 
   // loading chunks
@@ -97,9 +99,9 @@ void main() {
 
   vec4 fogColor;
   fogColor.rgb = nlRenderSky(skycol, env, viewDir, FogColor.rgb, t);
-  fogColor.a = nlRenderFogFade(relativeDist, FogColor.rgb, FogAndDistanceControl.xy);
+  fogColor.a = nlRenderFogFade(skycol, relativeDist, env, FogColor.rgb, FogAndDistanceControl.xy, worldPos, vec3(0.0,0.0,0.0), t);
   #ifdef NL_GODRAY 
-    fogColor.a = mix(fogColor.a, 1.0, NL_GODRAY*nlRenderGodRayIntensity(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb));
+    fogColor.a = nlRenderGodRay(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb, fogColor.a);
   #endif
 
   if (env.nether) {
@@ -120,7 +122,7 @@ void main() {
     color.a = mix(color.a, 1.0, 0.5*clamp(relativeDist, 0.0, 1.0));
     if (a_color0.b > 0.3 && a_color0.a < 0.95) {
       water = 1.0;
-      refl = nlWater(skycol, env, worldPos, color, a_color0, viewDir, light, cPos, tiledCpos, bPos.y, FogColor.rgb, lit, t, camDis, torchColor);
+      refl = nlWater(skycol, env, worldPos, color, a_color0, viewDir, light, cPos, tiledCpos, bPos.y, FogColor.rgb, lit, t, camDis, torchColor, NL_CLOUD_PARAMS(_));
     } else {
       refl = nlRefl(skycol, env, color, lit, tiledCpos, camDis, worldPos, viewDir, torchColor, FogColor.rgb, FogAndDistanceControl.z, t);
     }
@@ -155,6 +157,7 @@ void main() {
   v_color0 = color;
   v_color1 = a_color0;
   v_fog = fogColor;
+  v_depth = gl_Position.z / gl_Position.w;
 
   #else
 

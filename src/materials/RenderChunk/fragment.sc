@@ -1,4 +1,4 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_depth
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -58,6 +58,9 @@ void main() {
       diffuse.rgb += v_refl.rgb*mask;
     }
   }
+  
+  float depthEffect = 1.0 - v_depth;
+  color.rgb *= vec3(v_depth);
 
   diffuse.rgb = mix(diffuse.rgb, v_fog.rgb, v_fog.a);
 

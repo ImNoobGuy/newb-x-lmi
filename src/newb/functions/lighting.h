@@ -79,7 +79,7 @@ vec3 nlLighting(
 
     // shadow cast by simple cloud
     #ifdef NL_CLOUD_SHADOW
-      shadow *= smoothstep(0.6, 0.1, cloudNoise2D(2.0*wPos.xz*NL_CLOUD1_SCALE, t, env.rainFactor));
+        shadow *= smoothstep(0.6, 0.1, cloudNoise2D(2.0*wPos.xz*NL_CLOUD1_SCALE, t, env.rainFactor));
     #endif
 
     // direct light from top
@@ -91,14 +91,20 @@ vec3 nlLighting(
 
     // torch light
     light += torchLight*(1.0-(max(shadow, 0.65*lit.y)*dayFactor*(1.0-0.3*env.rainFactor)));
+    
+    // rain terrain lighting
+    light *= mix(1.0,0.55,smoothstep(0.0,1.0,env.rainFactor));
   }
 
   // darken at crevices
-  light *= COLOR.g > 0.35 ? 1.0 : 0.8;
+  float col_max = max(COLOR.r, max(COLOR.g, COLOR.b));
+    if (col_max < 0.7) { 
+         light *= 0.3;
+     };
 
   // brighten tree leaves
   if (isTree) {
-    light *= 1.25;
+    light *= 2.25;
   }
 
   return light;
@@ -141,7 +147,7 @@ vec3 nlEntityLighting(nl_environment env, vec3 pos, vec4 normal, mat4 world, vec
   if (env.nether) {
     light *= tileLightCol.x*NL_NETHER_AMBIENT*0.5;
   } else if (env.end) {
-    light *= NL_END_AMBIENT;
+    light *= vec3(1.98,1.25,2.3);
   } else if (env.underwater) {
     light += NL_UNDERWATER_BRIGHTNESS;
     light *= mix(normalize(horizonEdgeCol),vec3(1.0,1.0,1.0),tileLightCol.x*0.5);

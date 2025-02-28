@@ -15,7 +15,6 @@ void main() {
     vec4 diffuse = texture2D(s_SkyTexture, v_texcoord0);
 
     vec3 color = renderEndSky(getEndHorizonCol(), getEndZenithCol(), normalize(v_posTime.xyz), v_posTime.w);
-    color += 2.8*diffuse.rgb; // stars
 
     color = colorCorrection(color);
 

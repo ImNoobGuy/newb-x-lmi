@@ -33,7 +33,6 @@ void main() {
     #ifdef NL_GALAXY_STARS
       skyColor += NL_GALAXY_STARS*nlRenderGalaxy(viewDir, v_fogColor, env, v_underwaterRainTime.z);
     #endif
-
     skyColor = colorCorrection(skyColor);
 
     gl_FragColor = vec4(skyColor, 1.0);

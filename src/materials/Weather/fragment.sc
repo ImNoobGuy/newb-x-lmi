@@ -47,7 +47,7 @@ void main() {
     }
 
     vec4 color = texture2D(s_WeatherTexture, UVOffsetAndScale.xy + 0.5*UVOffsetAndScale.zw);
-    color.a = g*g;
+    color.a = g;
 
     diffuse = mix(diffuse, color, NL_WEATHER_SPECK);
   #endif 
@@ -63,4 +63,3 @@ void main() {
 
   gl_FragColor = diffuse;
 }
-
