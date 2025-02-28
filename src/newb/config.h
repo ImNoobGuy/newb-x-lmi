@@ -240,7 +240,7 @@
 #endif
 
 #ifdef GALAXY_STARS
-  #define NL_GALAXY_STARS
+  #define NL_GALAXY_STARS 2.0
 #endif
 
 #ifdef SOFT_CLOUDS
