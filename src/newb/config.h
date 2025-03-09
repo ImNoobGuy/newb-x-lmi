@@ -29,18 +29,18 @@
 
 /* Color correction */
 #define NL_TONEMAP_TYPE 3              // 1:Exponential, 2:Reinhard, 3:Extended Reinhard, 4:ACES
-#define NL_GAMMA 1.33                  // 0.3 low ~ 2.0 high
-#define NL_EXPOSURE 1.47              // [toggle] 0.5 dark ~ 3.0 bright
-#define NL_SATURATION 1.45            // [toggle] 0.0 grayscale ~ 4.0 super saturated
+#define NL_GAMMA 1.37                  // 0.3 low ~ 2.0 high
+#define NL_EXPOSURE 1.46              // [toggle] 0.5 dark ~ 3.0 bright
+#define NL_SATURATION 1.39            // [toggle] 0.0 grayscale ~ 4.0 super saturated
 //#define NL_TINT                      // [toggle] enable light/dark tone tinting
 #define NL_TINT_LOW  vec3(0.3,0.5,1.4) // color tint for dark tone
 #define NL_TINT_HIGH vec3(1.4,0.7,0.3) // color tint for light tone
 
 /* Terrain lighting */
-#define NL_SUN_INTENSITY 2.85   // 0.5 weak ~ 5.0 bright
-#define NL_TORCH_INTENSITY 0.85  // 0.5 weak ~ 3.0 bright
+#define NL_SUN_INTENSITY 2.95   // 0.5 weak ~ 5.0 bright
+#define NL_TORCH_INTENSITY 0.95  // 0.5 weak ~ 3.0 bright
 #define NL_NIGHT_BRIGHTNESS -0.34 // 0.0 dark ~ 2.0 bright
-#define NL_CAVE_BRIGHTNESS 0.3  // 0.0 dark ~ 2.0 bright
+#define NL_CAVE_BRIGHTNESS 0.2  // 0.0 dark ~ 2.0 bright
 #define NL_SHADOW_INTENSITY 1.0 // 0.0 no shadow ~ 1.0 strong shadow
 #define NL_BLINKING_TORCH     // [toggle] flickering light
 //#define NL_CLOUD_SHADOW       // [toggle] cloud shadow (simple clouds only)
@@ -85,7 +85,7 @@
 #define NL_RAINBOW_RAIN 0.0  // 0.5 subtle ~ 2.0 bright during rain
 
 /* Ore glow intensity */
-#define NL_GLOW_TEX 9.9    // 0.4 weak ~ 8.0 bright
+#define NL_GLOW_TEX 7.5    // 0.4 weak ~ 8.0 bright
 #define NL_GLOW_SHIMMER 0.8       // [toggle] 0.1 subtle ~ 1.0 100% shimmer
 #define NL_GLOW_SHIMMER_SPEED 0.7 // 0.5 slow - 2.0 fast
 #define NL_GLOW_LEAK 0.1 // [toggle] 0.08 subtle ~ 1.0 100% brightness of NL_GLOW_TEX
@@ -103,7 +103,7 @@
 #define NL_WATER_TEX_OPACITY 0.01  // 0.0 plain water ~ 1.0 vanilla water texture
 #define NL_WATER_WAVE             // [toggle] wave effect
 #define NL_WATER_CLOUD_REFLECTION // [toggle] simple clouds/aurora reflection
-//#define NL_WATER_REFL_MASK      // [toggle] fake water reflection mask
+#define NL_WATER_REFL_MASK      // [toggle] fake water reflection mask
 #define NL_WATER_TINT vec3(0.0,0.0,0.28)
 
 /* Underwater */
@@ -114,7 +114,7 @@
 #define NL_UNDERWATER_TINT vec3(0.0,0.2,0.6) // fog tint color when underwater
 
 /* Cloud type */
-#define NL_CLOUD_TYPE 2 // 0:vanilla, 1:soft, 2:rounded
+#define NL_CLOUD_TYPE 2 // 0:vanilla, 1:soft, 2:rounded, 3:realistic
 
 /* Vanilla cloud settings - make sure to remove clouds.png when using this */
 #define NL_CLOUD0_THICKNESS 2.1      // 0.5 slim ~ 8.0 fat
@@ -130,7 +130,7 @@
 #define NL_CLOUD1_OPACITY 0.9              // 0.0 invisible ~ 1.0 opaque
 
 /* Rounded cloud Settings */
-#define NL_CLOUD2_TYPE 1
+//#define NL_CLOUD2_TYPE 1				   // Disabled because there's already realistic cloud (do not enable!) pool
 #define NL_CLOUD2_THICKNESS 4.1            // 0.5 slim ~ 5.0 fat
 #define NL_CLOUD2_RAIN_THICKNESS 4.5       // 0.5 slim ~ 5.0 fat
 #define NL_CLOUD2_STEPS 5                  // 3 low quality ~ 16 high quality
@@ -148,6 +148,12 @@
 #define NL_CLOUD2_LAYER2_SHAPE vec2(0.5, 0.5)     // 0.0 round ~ 1.0 box
 #define NL_CLOUD2_LAYER2_DENSITY 25.0             // 1.0 blurry ~ 100.0 sharp
 #define NL_CLOUD2_LAYER2_VELOCITY 0.8             // 0.0 static ~ 4.0 very fast
+
+/* Realistic cloud settings */
+#define NL_CLOUD3_SCALE vec2(0.03, 0.03) // 0.003 large ~ 1.0 tiny
+#define NL_CLOUD3_SPEED 0.005            // 0.0 static ~ 4.0 fast moving
+#define NL_CLOUD3_SHADOW 0.9             // 0.1 subtle ~ 1.0 dark
+#define NL_CLOUD3_SHADOW_OFFSET 0.3      // 0.05 minimal ~ 1.0 large
 
 /* Aurora settings */
 #define NL_AURORA 4.2           // [toggle] 0.4 dim ~ 4.0 very bright
@@ -194,6 +200,12 @@
 #define NL_WEATHER_RAIN_SLANT 4.0    // 1.0 minimal ~ 8.0 violent
 #define NL_WEATHER_PARTICLE_SIZE 1.0 // 0.5 tiny ~ 4.0 large
 
+/* Lava effects */
+//#define NL_LAVA_NOISE            // [toggle] darken lava in certain regions
+#define NL_LAVA_NOISE_BUMP 0.5 // [toggle] 0.1 subtle ~ 0.8 massive waves
+#define NL_LAVA_NOISE_SPEED 0.02 // 0.0 still ~ 0.1 fast
+
+
 /*
   NEWB SHADER SUBPACK CONFIG
   This part contains custom configuration options for each subpack.
@@ -232,7 +244,11 @@
 
 #ifdef INTENSE_FOG
   #undef NL_MIST_DENSITY
-  #define NL_MIST_DENSITY 1.15
+  #define NL_MIST_DENSITY 1.45
+#endif
+
+#ifdef BUMPY_LAVA
+  #define NL_LAVA_NOISE
 #endif
 
 #ifdef RAINBOW
@@ -256,9 +272,9 @@
   #define NL_CLOUD2_LAYER2
 #endif
 
-#ifdef VOLUMETRIC_RC
+#ifdef REALISTIC_CLOUDS
   #undef NL_CLOUD2_TYPE
-  #define NL_CLOUD2_TYPE 2
+  #define NL_CLOUD2_TYPE 3
 #endif
 
 #ifdef VANILLA_CLOUDS

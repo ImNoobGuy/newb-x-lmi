@@ -104,7 +104,7 @@ vec3 nlLighting(
 
   // brighten tree leaves
   if (isTree) {
-    light *= 2.75;
+    light *= 3.75;
   }
 
   return light;
@@ -168,6 +168,17 @@ float nlEntityEdgeHighlight(vec4 edgemap) {
 vec4 nlEntityEdgeHighlightPreprocess(vec2 texcoord) {
   vec4 edgeMap = fract(vec4(texcoord*128.0, texcoord*256.0));
   return 2.0*step(edgeMap, vec4_splat(0.5)) - 1.0;
+}
+
+vec3 nlLavaNoise(vec3 tiledCpos, float t) {
+  t *= 0.02;
+  float n = fastVoronoi2(1.12*tiledCpos.xz + t, 1.8);
+  n *= fastVoronoi2(4.48*tiledCpos.xz + t, 1.5);
+  n = 1.0 - n*n*n;
+  n = 1.0 - n*n;
+  float n2 = n*n;
+  n2 *= n2;
+  return vec3(n, n2, n2);
 }
 
 #endif

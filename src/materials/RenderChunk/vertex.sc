@@ -149,6 +149,18 @@ void main() {
   #else
     float shimmer = 1.0;
   #endif
+  
+  #ifdef NL_LAVA_NOISE
+    bool isc = (a_color0.r+a_color0.g+a_color0.b) > 2.999;
+    bool isb = bPos.y < 0.891 && bPos.y > 0.889;
+    if (isc && isb && (uv1.x > 0.81 && uv1.x < 0.876) && a_texcoord0.y > 0.45) {
+      vec3 lava = nlLavaNoise(tiledCpos, t);
+      #ifdef NL_LAVA_NOISE_BUMP
+        worldPos.y += NL_LAVA_NOISE_BUMP*lava.r;
+      #endif
+      color.rgb *= lava;
+    }
+  #endif
 
   v_extra = vec4(shade, worldPos.y, water, shimmer);
   v_refl = refl;

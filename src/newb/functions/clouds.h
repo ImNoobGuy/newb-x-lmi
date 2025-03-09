@@ -40,14 +40,14 @@ vec4 renderCloudsSimple(nl_skycolor skycol, vec3 pos, highp float t, float rain)
 // rounded clouds
 
 // rounded clouds 3D density map
-#if NL_CLOUD2_TYPE == 1
+//#if NL_CLOUD2_TYPE == 1
 float cloudDf(vec3 pos, float rain, float time, vec2 boxiness) {
   boxiness *= 0.999;
   vec2 p0 = floor(pos.xz);
   vec2 u = max((pos.xz-p0-boxiness)/(1.0-boxiness), 0.0);
   u *= u*(3.0 - 2.0*u);
   //vec2 v = 1.0 - u;
-#elif NL_CLOUD2_TYPE == 2
+/*#elif NL_CLOUD2_TYPE == 2
 // 2d noise
 float noise(vec2 p){
   vec2 p0 = floor(p);
@@ -73,7 +73,7 @@ float cloudDf(vec3 pos, float rain, float time, vec2 boxiness) {
   vec2 u = max((pos.xz-p0-boxiness)/(1.0-boxiness), 0.0);
   //u *= u*(3.0 - 2.0*u);
   vec3 v = 1.0 - u;
-#endif
+#endif*/
 
   vec4 r = vec4(rand(p0), rand(p0+vec2(1.0,0.0)), rand(p0+vec2(1.0,1.0)), rand(p0+vec2(0.0,1.0)));
   r = smoothstep(0.1001+0.2*rain, 0.1+0.2*rain*rain, r); // rain transition
@@ -87,7 +87,7 @@ float cloudDf(vec3 pos, float rain, float time, vec2 boxiness) {
   return n;
 }
 
-vec4 renderClouds(
+vec4 renderCloudsRounded(
     vec3 vDir, vec3 vPos, float rain, float time, vec3 horizonCol, vec3 zenithCol,
     const int steps, const float thickness, const float thickness_rain, const float speed,
     const vec2 scale, const float density, const vec2 boxiness
@@ -128,6 +128,48 @@ vec4 renderClouds(
   col.rgb *= mix(0.3,1.0,d.y);
   col.rgb += dot(col.rgb, vec3(0.3,0.4,0.3))*d.y*d.y;
   col.rgb *= 0.8 - 0.6*rain;
+
+  return col;
+}
+
+float cloudsNoiseVr(vec2 p, float t) {
+  float n = fastVoronoi2(p + t, 1.8);
+  n *= fastVoronoi2(3.0*p + t, 1.5);
+  n *= fastVoronoi2(9.0*p + t, 0.4);
+  n *= fastVoronoi2(27.0*p + t, 0.1);
+  //n *= fastVoronoi2(82.0*pos + t, 0.02); // more quality
+  return n*n;
+}
+
+vec4 renderClouds(vec2 p, float t, float rain, vec3 horizonCol, vec3 zenithCol, const vec2 scale, const float velocity, const float shadow) {
+  p *= scale;
+  t *= velocity;
+
+  // layer 1
+  float a = cloudsNoiseVr(p, t);
+  float b = cloudsNoiseVr(p + NL_CLOUD3_SHADOW_OFFSET*scale, t);
+
+  // layer 2
+  p = 1.4 * p.yx + vec2(7.8, 9.2);
+  t *= 0.5;
+  float c = cloudsNoiseVr(p, t);
+  float d = cloudsNoiseVr(p + NL_CLOUD3_SHADOW_OFFSET*scale, t);
+
+  // higher = less clouds thickness
+  // lower separation betwen x & y = sharper
+  vec2 tr = vec2(0.6, 0.7) - 0.12*rain;
+  a = smoothstep(tr.x, tr.y, a);
+  c = smoothstep(tr.x, tr.y, c);
+
+  // shadow
+  b *= smoothstep(0.2, 0.8, b);
+  d *= smoothstep(0.2, 0.8, d);
+
+  vec4 col;
+  col.a = a + c*(1.0-a);
+  col.rgb = horizonCol + horizonCol.ggg;
+  col.rgb = mix(col.rgb, 0.5*(zenithCol + zenithCol.ggg), shadow*mix(b, d, c));
+  col.rgb *= 1.0-0.7*rain;
 
   return col;
 }

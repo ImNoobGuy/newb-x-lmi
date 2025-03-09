@@ -3,9 +3,9 @@
 
 #include "constants.h"
 
-//https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
+//functions under [1] are from https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
 
-// hash function for noise (for highp only)
+// [1] hash function for noise (for highp only)
 float rand(highp vec2 n) {
   return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 52.543);
 }
@@ -24,7 +24,7 @@ vec4 mod289(vec4 x) {
 vec4 perm(vec4 x) {
   return mod289(((x * 34.0) + 1.0) * x);
 }
-// used by galaxy
+// [1] used by galaxy
 float noise3D(vec3 p){
   vec3 a = floor(p);
   vec3 d = p - a;
@@ -58,6 +58,7 @@ float disp(vec3 pos, float t) {
   return (0.8+0.2*n) * mix(fastRand(pos.xz+p), fastRand(pos.xz+p+1.0), pos.y - p);
 }
 
+// [1]
 float noise2D(vec2 u) {
   vec2 u0 = floor(u);
   vec2 v = u-u0;
@@ -69,6 +70,14 @@ float noise2D(vec2 u) {
   float c3 = rand(u0+vec2(0.0, 1.0));
 
   return mix(mix(c0, c3, v.y), mix(c1, c2, v.y), v.x);
+}
+
+float fastVoronoi2(vec2 pos, float f) {
+  vec4 p = pos.xyxy;
+  p.zw += p.wz*vec2(0.4,0.5);
+  p = fract(p) - 0.5;
+  p *= p;
+  return 1.0-f*min(p.x+p.y, p.z+p.w);
 }
 
 #endif
