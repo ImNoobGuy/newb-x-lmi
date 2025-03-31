@@ -40,40 +40,12 @@ vec4 renderCloudsSimple(nl_skycolor skycol, vec3 pos, highp float t, float rain)
 // rounded clouds
 
 // rounded clouds 3D density map
-//#if NL_CLOUD2_TYPE == 1
 float cloudDf(vec3 pos, float rain, float time, vec2 boxiness) {
   boxiness *= 0.999;
   vec2 p0 = floor(pos.xz);
   vec2 u = max((pos.xz-p0-boxiness)/(1.0-boxiness), 0.0);
   u *= u*(3.0 - 2.0*u);
   //vec2 v = 1.0 - u;
-/*#elif NL_CLOUD2_TYPE == 2
-// 2d noise
-float noise(vec2 p){
-  vec2 p0 = floor(p);
-	vec2 u = p-p0;
-
-	u *= u*(3.0-2.0*u);
-	vec2 v = 1.0 - u;
-
-	float c1 = rand(p0);
-	float c2 = rand(p0+vec2(1.0,0.0));
-	float c3 = rand(p0+vec2(0.0,1.0));
-	float c4 = rand(p0+vec2(1.0,1.0));
-
-	float n = v.y*mix(c1,c2,u.x) + u.y*(c3*v.x+c4*u.x);
-	return n;
-}
-float cloudDf(vec3 pos, float rain, float time, vec2 boxiness) {
-  pos.x += 0.35*noise(6.35*pos.xz) + 0.05*time;
-  pos.y += 0.0*noise(0.0*pos.xz);
-  pos.z += 0.35*noise(6.35*pos.xz) + 0.05*time;
-  boxiness *= 0.999;
-  vec2 p0 = floor(pos.xz);
-  vec2 u = max((pos.xz-p0-boxiness)/(1.0-boxiness), 0.0);
-  //u *= u*(3.0 - 2.0*u);
-  vec3 v = 1.0 - u;
-#endif*/
 
   vec4 r = vec4(rand(p0), rand(p0+vec2(1.0,0.0)), rand(p0+vec2(1.0,1.0)), rand(p0+vec2(0.0,1.0)));
   r = smoothstep(0.1001+0.2*rain, 0.1+0.2*rain*rain, r); // rain transition
@@ -126,7 +98,7 @@ vec4 renderCloudsRounded(
 
   vec4 col = vec4(horizonCol + zenithCol, d.x);
   col.rgb *= mix(0.3,1.0,d.y);
-  col.rgb += dot(col.rgb, vec3(0.3,0.4,0.3))*d.y*d.y;
+  col.rgb += dot(col.rgb, vec3(0.4,0.5,0.4))*d.y*d.y;
   col.rgb *= 0.8 - 0.6*rain;
 
   return col;

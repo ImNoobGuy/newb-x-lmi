@@ -57,12 +57,6 @@ description = '''
 No Aurora And Cloud Reflection\nWill remove the cloud and aurora reflection \n\nimprove fps when in the sea
 '''
 [[subpack]]
-define = "BUMPY_LAVA"
-materials = ["RenderChunk"]
-description = '''
-Bumpy Lava\nAdd something like lava bump only on nether!
-'''
-[[subpack]]
 define = "RAINBOW"
 materials = ["Sky"]
 description = '''

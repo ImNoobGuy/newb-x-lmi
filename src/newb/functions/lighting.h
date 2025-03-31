@@ -104,7 +104,7 @@ vec3 nlLighting(
 
   // brighten tree leaves
   if (isTree) {
-    light *= 3.75;
+    light *= 3.05;
   }
 
   return light;

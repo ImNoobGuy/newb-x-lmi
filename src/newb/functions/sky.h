@@ -97,7 +97,7 @@ vec3 getSunBloom(float viewDirX, vec3 horizonEdgeCol, vec3 FOG_COLOR) {
 
   float spread = smoothstep(0.0, 1.0, abs(viewDirX));
   float sunBloom = spread*spread;
-  sunBloom = 0.2*spread + sunBloom*sunBloom*0.4;
+  sunBloom = 0.2*spread + sunBloom*sunBloom*0.6;
 
   return NL_MORNING_SUN_COL*horizonEdgeCol*(sunBloom*factor*factor);
 }
@@ -186,7 +186,7 @@ vec3 getSkyRefl(nl_skycolor skycol, nl_environment env, vec3 viewDir, vec3 FOG_C
     specular *= specular;
     specular += specular*specular*specular*specular;
     specular *= max(FOG_COLOR.r-FOG_COLOR.b, 0.0);
-    refl += 5.0 * skycol.horizonEdge * specular * specular;
+    refl += 4.0 * skycol.horizonEdge * specular * specular;
   }
 
   return refl;
