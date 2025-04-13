@@ -62,7 +62,7 @@
 
 /* Fog */
 #define NL_FOG 1.0                // [toggle] 0.1 subtle ~ 1.0 blend with sky completely
-#define NL_MIST_DENSITY 1.25      // 0.0 no mist ~ 1.0 misty
+#define NL_MIST_DENSITY 1.45      // 0.0 no mist ~ 1.0 misty
 #define NL_RAIN_MIST_OPACITY 0.42 // [toggle] 0.04 very subtle ~ 0.5 thick rain mist blow
 #define NL_CLOUDY_FOG 0.001         // [toggle] 0.0 subtle - 0.8 dense fog clouds
 
@@ -76,8 +76,8 @@
 #define NL_END_ZENITH_COL    vec3(0.0,0.0,0.0)
 #define NL_END_HORIZON_COL   vec3(0.3,0.0,0.6)		//vec3(0.28,0.031,0.33)
 #define NL_DAWN_ZENITH_COL   vec3(0.015,0.045,0.1)
-#define NL_DAWN_HORIZON_COL  vec3(0.9,0.3,0.3)
-#define NL_DAWN_EDGE_COL     vec3(1.0,0.4,0.2)
+#define NL_DAWN_HORIZON_COL  vec3(0.9,0.5,0.05)
+#define NL_DAWN_EDGE_COL     vec3(0.9,0.5,0.05)
 
 /* Rainbow */
 //#define NL_RAINBOW         // [toggle] enable rainbow in sky
@@ -130,8 +130,8 @@
 #define NL_CLOUD1_OPACITY 0.9              // 0.0 invisible ~ 1.0 opaque
 
 /* Rounded cloud Settings */
-#define NL_CLOUD2_THICKNESS 4.1            // 0.5 slim ~ 5.0 fat
-#define NL_CLOUD2_RAIN_THICKNESS 4.5       // 0.5 slim ~ 5.0 fat
+#define NL_CLOUD2_THICKNESS 3.1            // 0.5 slim ~ 5.0 fat
+#define NL_CLOUD2_RAIN_THICKNESS 3.5       // 0.5 slim ~ 5.0 fat
 #define NL_CLOUD2_STEPS 5                  // 3 low quality ~ 16 high quality
 #define NL_CLOUD2_SCALE vec2(0.045, 0.045) // 0.003 large ~ 0.3 tiny
 #define NL_CLOUD2_SHAPE vec2(0.5, 0.5)     // 0.0 round ~ 1.0 box vec2(horizontal shape, vertical shape)
@@ -140,9 +140,9 @@
 
 //#define NL_CLOUD2_LAYER2                        // [toggle] extra cloud layer
 #define NL_CLOUD2_LAYER2_OFFSET 143.0             // 30.0 near ~ 300.0 very high
-#define NL_CLOUD2_LAYER2_THICKNESS 2.5            // 0.7 slim ~ 5.0 fat
-#define NL_CLOUD2_LAYER2_RAIN_THICKNESS 3.0       // 0.7 slim ~ 5.0 fat
-#define NL_CLOUD2_LAYER2_STEPS 3                  // 3 low quality ~ 16 high quality
+#define NL_CLOUD2_LAYER2_THICKNESS 3.1            // 0.7 slim ~ 5.0 fat
+#define NL_CLOUD2_LAYER2_RAIN_THICKNESS 3.5       // 0.7 slim ~ 5.0 fat
+#define NL_CLOUD2_LAYER2_STEPS 4                  // 3 low quality ~ 16 high quality
 #define NL_CLOUD2_LAYER2_SCALE vec2(0.03, 0.03)   // 0.003 large ~ 0.3 tiny
 #define NL_CLOUD2_LAYER2_SHAPE vec2(0.5, 0.5)     // 0.0 round ~ 1.0 box
 #define NL_CLOUD2_LAYER2_DENSITY 25.0             // 1.0 blurry ~ 100.0 sharp
@@ -155,7 +155,7 @@
 #define NL_CLOUD3_SHADOW_OFFSET 0.3      // 0.05 minimal ~ 1.0 large
 
 /* Aurora settings */
-#define NL_AURORA 4.2           // [toggle] 0.4 dim ~ 4.0 very bright
+#define NL_AURORA 4.4           // [toggle] 0.4 dim ~ 4.0 very bright
 #define NL_AURORA_VELOCITY 0.03 // 0.0 static ~ 0.3 very fast
 #define NL_AURORA_SCALE 0.04    // 0.002 large ~ 0.4 tiny
 #define NL_AURORA_WIDTH 0.18    // 0.04 thin line ~ 0.4 thick lines
@@ -268,8 +268,8 @@
 #endif
 
 #ifdef REALISTIC_CLOUDS
-  #undef NL_CLOUD2_TYPE
-  #define NL_CLOUD2_TYPE 3
+  #undef NL_CLOUD_TYPE
+  #define NL_CLOUD_TYPE 3
 #endif
 
 #ifdef VANILLA_CLOUDS
