@@ -12,8 +12,12 @@ void main() {
     gl_FragColor = vec4(1.0,1.0,1.0,1.0);
     return;
   #endif
-
+  
   vec4 diffuse = texture2D(s_MatTexture, v_texcoord0);
+  /*vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
+  vec3 neighbor = texture2D(s_MatTexture, v_texcoord0 + offset * vec2(-0.15, -0.15)).rgb; // vec2 = Jauh / deket nya offset texture & simulasi arah cahaya
+  vec3 contrast = diffuse.rgb - neighbor;
+  diffuse.rgb += contrast * 1.5; // 1.5 = buat atur soft / strong efek nya*/
   vec4 color = v_color0;
 
   #ifdef ALPHA_TEST

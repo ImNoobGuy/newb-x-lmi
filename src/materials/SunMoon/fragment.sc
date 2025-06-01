@@ -42,7 +42,7 @@ void main() {
     color.rgb *= SunMoonColor.rgb;
 
     float tr = 1.0 - SunMoonColor.a;
-    color.a = 1.0 - tr*tr*tr;
+    color.a = 1.0 - (1.0-0.5)*tr*tr;
 
     gl_FragColor = color;
   #else
