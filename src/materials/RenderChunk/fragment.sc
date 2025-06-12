@@ -1,4 +1,4 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_wPos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -14,10 +14,22 @@ void main() {
   #endif
   
   vec4 diffuse = texture2D(s_MatTexture, v_texcoord0);
-  /*vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
+  
+  vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
+  
   vec3 neighbor = texture2D(s_MatTexture, v_texcoord0 + offset * vec2(-0.15, -0.15)).rgb; // vec2 = Jauh / deket nya offset texture & simulasi arah cahaya
   vec3 contrast = diffuse.rgb - neighbor;
-  diffuse.rgb += contrast * 1.5; // 1.5 = buat atur soft / strong efek nya*/
+  
+  float brightness = texture2D(s_LightMapTexture, v_lightmapUV).r;
+  
+  brightness = max(brightness, 0.05);
+  brightness = pow(brightness, 0.4);
+  
+  float dist = length(v_wPos);
+  float fade = clamp(1.0 - dist / 16.0, 0, 0.1);
+  float contrastInt = mix(0.1, 2.25, brightness);
+  
+  diffuse.rgb += contrast * contrastInt * fade;
   vec4 color = v_color0;
 
   #ifdef ALPHA_TEST
