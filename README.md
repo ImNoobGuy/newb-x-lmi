@@ -1,6 +1,6 @@
-# Newb X Legacy
+# Newb X LMI (Legacy More Improvement)
 
-**Newb X Legacy** is a RenderDragon successor to the legacy GLSL shader, [Newb Shader](https://github.com/devendrn/newb-shader-mcbe). It is an enhanced vanilla shader that focuses on being lightweight and having soft aesthetics. It supports Minecraft Bedrock 1.21+ (Windows/Android/iOS).
+**Newb X LMI** is a variant of a RenderDragon shader [Newb X Legacy](https://github.com/devendrn/newb-x-mcbe) successor to the legacy GLSL shader, [Newb Shader](https://github.com/devendrn/newb-shader-mcbe). It is an enhanced vanilla shader that focuses on being lightweight and having soft aesthetics. It supports Minecraft Bedrock 1.21+ (Windows/Android/iOS).
 
 > [!WARNING]
 > This is an experimental repository, breaking changes are made often.
@@ -12,10 +12,7 @@
 <br>
 
 ## Downloads
-[v15 stable](https://github.com/devendrn/newb-x-mcbe/releases/tag/v15) (For 1.20.73 or older)  
-[v15 beta](https://github.com/devendrn/newb-x-mcbe/releases/tag/v15-dev) (For 1.20.80 or newer)
-
-Nightly builds for Android (ESSL), Windows (DX), and iOS (Metal) can also be found at the [Discord server](https://discord.gg/newb-community-844591537430069279).
+Incoming :)
 
 <br>
 
