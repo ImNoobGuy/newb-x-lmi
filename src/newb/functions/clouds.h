@@ -54,7 +54,7 @@ float cloudDf(vec3 pos, float rain, float time, vec2 boxiness) {
 
   // round y
   n *= 1.0 - 1.5*smoothstep(boxiness.y, 2.0 - boxiness.y, 2.0*abs(pos.y-0.55));
-  n = max(1.0*(n-0.0), 0.0); // smoothstep(0.2, 1.0, n)
+  n = max(1.25*(n-0.0), 0.0); // smoothstep(0.2, 1.0, n)
   n *= n*(3.0 - 2.0*n);
   return n;
 }
@@ -89,16 +89,15 @@ vec4 renderCloudsRounded(
     pos += deltaP;
   }
   
-  d.x *= smoothstep(1.0, 1.4, d.x);
+  d.x *= smoothstep(0.3, 1.2, d.x);
   d.x /= (stepsf/density) + d.x;
 
   if (vPos.y < 0.0) { // view from top
     d.y = 1.0 - d.y;
   }
 
-  vec4 col = vec4(horizonCol + zenithCol, d.x);
-  col.rgb *= mix(0.3,1.0,d.y);
-  col.rgb += dot(col.rgb, vec3(0.4,0.5,0.4))*d.y*d.y;
+  vec4 col = vec4(horizonCol*2.0, d.x);
+  col.rgb += dot(col.rgb, vec3(1.38,0.5,1.4))*d.y*d.y;
   col.rgb *= 0.8 - 0.6*rain;
 
   return col;

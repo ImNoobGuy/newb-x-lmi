@@ -30,91 +30,91 @@ credits = '''
 define = "CAVE_VISION"
 materials = ["RenderChunk"]
 description = '''
-Cave Vision\nMake the cave lighting slightly brighter
+§9Cave Vision§r\n\nWill make the cave slightly brighter
 '''
 [[subpack]]
 define = "CHUNK_ANIMATION"
 materials = ["RenderChunk"]
 description = '''
-Chunk Loading Animation\nadd a animation when loading a chunk
+Chunk Loading Animation\n\nadd a animation when loading a chunk
 '''
 [[subpack]]
 define = "CHUNK_ANIMATION_FALL_FROM_TOP"
 materials = ["RenderChunk"]
 description = '''
-Chunk Loading Animation\nadd a animation when loading a chunk\nbut the chunks are fall from top!
+Chunk Loading Animation FFT\n\nadd a animation when loading a chunk\nbut the chunks are fall from top!
 '''
 [[subpack]]
 define = "GROUND_REFLECTION"
 materials = ["RenderChunk"]
 description = '''
-Ground Reflection\nAdd a slightly fake ground reflection
+Ground Reflection\n\nAdd a slightly fake ground reflection
 '''
 [[subpack]]
 define = "NO_AURORA_AND_CLOUD_REFLECTION"
 materials = ["RenderChunk"]
 description = '''
-No Aurora And Cloud Reflection\nWill remove the cloud and aurora reflection \n\nimprove fps when in the sea
+No Aurora And Cloud Reflection\n\nWill remove the cloud and aurora reflection \n\nimprove fps when in the sea
 '''
 [[subpack]]
 define = "RAINBOW"
 materials = ["Sky"]
 description = '''
-§4R§6a§ei§an§1b§5o§dw§r\nAdd §4R§6a§ei§an§1b§5o§dw§r to the blue sky
+§4R§6a§ei§an§1b§5o§dw§r\n\nAdd §4R§6a§ei§an§1b§5o§dw§r to the blue sky
 '''
 [[subpack]]
 define = "GALAXY_STARS"
 materials = ["Sky"]
 description = '''
-Galaxy Stars!\nAdded a Colorful galaxies to your night sky (bit laggy)
+Galaxy Stars!\n\nAdded a Colorful galaxies to your night sky (bit laggy)
 '''
 [[subpack]]
 define = "SOFT_CLOUDS"
 materials = ["Clouds"]
 description = '''
-Soft Clouds\nchange the clouds to softer and lighter clouds
+Soft Clouds\n\nchange the clouds to softer and lighter clouds
 '''
 [[subpack]]
 define = "MULTILAYER_ROUNDED_CLOUDS"
 materials = ["Clouds"]
 description = '''
-Multilayer Rounded Clouds\nAdd an extra layer for rounded clouds
+Multilayer Rounded Clouds\n\nAdd an extra layer for rounded clouds
 '''
 [[subpack]]
 define = "REALISTIC_CLOUDS"
 materials = ["Clouds"]
 description = '''
-Realistic Clouds\nAs it say it make the cloud realistic (a bit laggy)
+Realistic Clouds\n\nAs it say it make the cloud realistic (a bit laggy)
 '''
 [[subpack]]
 define = "VANILLA_CLOUDS"
 materials = ["Clouds"]
 description = '''
-Vanilla Clouds\nadd a Improved Vanilla style clouds
+Vanilla Clouds\n\nadd a Improved Vanilla style clouds
 '''
 [[subpack]]
 define = "NO_SHOOTING_STAR"
 materials = ["Sky"]
 description = '''
-No Shooting Star\nDisable the shooting star feature if you don't like it
+No Shooting Star\n\nDisable the shooting star feature if you don't like it
 '''
 [[subpack]]
 define = "NO_WAVE_NO_FOG"
 materials = ["RenderChunk"]
 description = '''
-No Wave No Fog\ndisable plants wave animation and fog effect
+No Wave No Fog\n\ndisable plants wave animation and fog effect
 '''
 [[subpack]]
 define = "NO_FOG"
 materials = ["RenderChunk"]
 description = '''
-No Fog\nremove fog effect
+No Fog\n\nremove fog effect
 '''
 [[subpack]]
 define = "NO_WAVE"
 materials = ["RenderChunk"]
 description = '''
-No Wave\ndisable plants wave animation
+No Wave\n\ndisable plants wave animation
 '''
 [[subpack]]
 define = "DEFAULT"

@@ -59,8 +59,6 @@ void main() {
 
   diffuse.rgb = colorCorrection(diffuse.rgb);
   diffuse.rgb *= light;
-  diffuse.rgb = mix(diffuse.rgb, v_fog.rgb, 0.3);
-  diffuse.rgb = mix(diffuse.rgb, light, 0.6);
 
   diffuse.a *= lightingUV.y*(1.0-v_fog.a);
   

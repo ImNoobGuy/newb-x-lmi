@@ -51,7 +51,7 @@ vec4 nlWater(
         vec4 clouds = renderCloudsSimple(skycol, cloudPos.xyy, t, env.rainFactor);
         waterRefl = mix(waterRefl, clouds.rgb, clouds.a*fade);
       /*#elif NL_CLOUD_TYPE == 2
-        vec4 clouds = renderClouds(viewDir, cloudPos.xyy, env.rainFactor, t, FOG_COLOR, skycol.horizonEdge, steps, thickness, thickness_rain, speed, scale, density, boxiness);
+        vec4 clouds = renderCloudsRounded(viewDir, cloudPos.xyy, env.rainFactor, t, FOG_COLOR, skycol.horizonEdge, steps, thickness, thickness_rain, speed, scale, density, boxiness);
         waterRefl = mix(waterRefl, clouds.rgb, clouds.a*fade);*/
       #endif
     }

@@ -16,7 +16,7 @@ void main() {
     vec3 vDir = normalize(v_color0.xyz);
 
     #if NL_CLOUD_TYPE == 2
-      color = renderCloudsRounded(vDir, v_color0.xyz, v_color1.w, v_color2.w, v_color2.rgb, v_color1.rgb, NL_CLOUD_PARAMS(_));
+      color = renderCloudsRounded(vDir, v_color0.xyz, v_color1.w, v_color2.w, v_color1.rgb, v_color1.rgb, NL_CLOUD_PARAMS(_));
 
     #ifdef NL_CLOUD2_LAYER2
       vec2 parallax = vDir.xz / abs(vDir.y) * NL_CLOUD2_LAYER2_OFFSET;
