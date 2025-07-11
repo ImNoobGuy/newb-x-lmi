@@ -104,7 +104,7 @@
 #define NL_WATER_WAVE             // [toggle] wave effect
 #define NL_WATER_CLOUD_REFLECTION // [toggle] simple clouds/aurora reflection
 #define NL_WATER_REFL_MASK      // [toggle] fake water reflection mask
-#define NL_WATER_TINT vec3(0.0,0.1,0.48)
+#define NL_WATER_TINT vec3(0.0,0.3,0.68)
 
 /* Underwater */
 #define NL_UNDERWATER_BRIGHTNESS 0.55         // 0.0 dark ~ 3.0 bright
