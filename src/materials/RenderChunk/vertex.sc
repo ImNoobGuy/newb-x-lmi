@@ -104,7 +104,7 @@ void main() {
 
   vec4 fogColor;
   fogColor.rgb = nlRenderSky(skycol, env, viewDir, FogColor.rgb, t);
-  fogColor.a = nlRenderFogFade(relativeDist, FogColor.rgb, FogAndDistanceControl.xy);
+  fogColor.a = nlRenderFogFade(env, skycol, fogColor.rgb, relativeDist, FogColor.rgb, FogAndDistanceControl.xy, worldPos, vec3(0.0,0.0,0.0), t);
   #ifdef NL_GODRAY 
     fogColor.a = nlRenderGodRay(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb, fogColor.a);
   #endif
@@ -139,7 +139,6 @@ void main() {
   #ifdef NL_RAIN_MIST_OPACITY
     if (env.rainFactor > 0.0) {
       float humidAir = env.rainFactor*lit.y*lit.y*nlWindblow(pos.xyz, t);
-      fogColor.rgb = mix(fogColor.rgb, vec3_splat(0.8), humidAir*NL_RAIN_MIST_OPACITY);
       fogColor.a = mix(fogColor.a, 1.0, humidAir*NL_RAIN_MIST_OPACITY);
     }
   #endif

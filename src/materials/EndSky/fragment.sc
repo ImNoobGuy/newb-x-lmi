@@ -22,7 +22,7 @@ void main() {
     vec4 diffuse = texture2D(s_SkyTexture, v_texcoord0);
 
     vec3 color = renderEndSky(getEndHorizonCol(), getEndZenithCol(), viewDir, v_posTime.w);
-    color += 2.5*nlRenderGalaxy(viewDir, vec3_splat(0.0), env, v_posTime.w);
+    color += 1.5*nlRenderGalaxy(viewDir, vec3_splat(0.0), env, v_posTime.w);
     color = colorCorrection(color);
 
     gl_FragColor = vec4(color, 1.0);

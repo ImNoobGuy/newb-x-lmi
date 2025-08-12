@@ -25,8 +25,8 @@ void main() {
   
   float brightness = texture2D(s_LightMapTexture, v_lightmapUV).r;
   
-  brightness = max(brightness, 0.07);
-  brightness = pow(brightness, 0.6);
+  brightness = max(brightness, 0.05);
+  brightness = pow(brightness, 0.3);
   
   float dist = length(v_wPos);
   float fade = clamp(1.0-dist/16.0, 0, 0.1);

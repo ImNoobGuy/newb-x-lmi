@@ -80,7 +80,7 @@ vec3 renderOverworldSky(nl_skycolor skycol, vec3 viewDir) {
   // gradient 2  h^8 mix h^2
   float gradient1 = hsq*hsq*hsq*hsq;
   gradient1 *= gradient1;
-  float gradient2 = 0.51*gradient1 + 0.27*hsq;
+  float gradient2 = 0.47*gradient1 + 0.23*hsq;
   gradient1 *= gradient1;
 
   vec3 sky = mix(skycol.horizon, skycol.horizonEdge, gradient1);
@@ -110,7 +110,7 @@ float EndHorizonRay(float a, float t, vec3 v, float ra, float tm){
 }
 
 vec3 renderEndSky(vec3 horizonCol, vec3 zenithCol, vec3 viewDir, float t) {
-  t *= 0.5;
+  t *= 0.2;
   float a = atan2(viewDir.x, viewDir.z);
   vec3 v = viewDir;
   v.y = smoothstep(0.0, 2.5,abs(v.y));
@@ -136,8 +136,8 @@ vec3 renderEndSky(vec3 horizonCol, vec3 zenithCol, vec3 viewDir, float t) {
 
   sky += mix(zenithCol, horizonCol, f*f)*(1.5 + 0.5 * f)*verticalFade;
   
-  vec3 rg = (g*g*g*g*5.8)*vec3(0.3,0.0,0.6)*50.95;
-  vec3 rg2 = (g2*g2*g2*g2*5.0)*vec3(0.35,0.25,0.23)*8.95;
+  vec3 rg = (g*g*g*g*5.8)*vec3(0.3,0.0,0.6)*35.95;
+  vec3 rg2 = (g2*g2*g2*g2*5.0)*vec3(0.35,0.25,0.23)*1.95;
   sky += rg + rg2;
 
   return sky;

@@ -37,7 +37,7 @@
 #define NL_TINT_HIGH vec3(1.4,0.7,0.3) // color tint for light tone
  
 /* Terrain lighting */
-#define NL_SUN_INTENSITY 2.88   // 0.5 weak ~ 5.0 bright
+#define NL_SUN_INTENSITY 2.78   // 0.5 weak ~ 5.0 bright
 #define NL_TORCH_INTENSITY 0.88  // 0.5 weak ~ 3.0 bright
 #define NL_NIGHT_BRIGHTNESS -0.47 // 0.0 dark ~ 2.0 bright
 #define NL_CAVE_BRIGHTNESS -0.05  // 0.0 dark ~ 2.0 bright
@@ -62,7 +62,7 @@
 
 /* Fog */
 #define NL_FOG 1.0                // [toggle] 0.1 subtle ~ 1.0 blend with sky completely
-#define NL_MIST_DENSITY 1.4      // 0.0 no mist ~ 1.0 misty
+#define NL_MIST_DENSITY 1.6      // 0.0 no mist ~ 1.0 misty
 #define NL_RAIN_MIST_OPACITY 0.42 // [toggle] 0.04 very subtle ~ 0.5 thick rain mist blow
 #define NL_CLOUDY_FOG 0.01         // [toggle] 0.0 subtle - 0.8 dense fog clouds
 
@@ -183,7 +183,7 @@
 #define NL_SUNMOON_SIZE 1.0     // 0.3 tiny ~ 4.0 massive
 
 /* Fake godrays during sunrise/sunset */
-#define NL_GODRAY 2.8 // [toggle] 1.0 subtle ~ 2.8 strong
+#define NL_GODRAY // [toggle] fake godray during sunset/sunrise
 
 /* Sky reflection */
 //#define NL_GROUND_REFL 0.4       // [toggle] 0.2 slightly reflective ~ 1.0 fully reflect sky 
