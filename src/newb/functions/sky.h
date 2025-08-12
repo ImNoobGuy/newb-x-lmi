@@ -228,6 +228,7 @@ vec3 nlRenderShootingStar(nl_environment env, vec3 viewDir, vec3 FOG_COLOR, floa
     s *= max(1.0-FOG_COLOR.r-FOG_COLOR.g-FOG_COLOR.b, 0.0); // fade out during day
     return s*vec3(0.8, 0.9, 1.0);
   }
+  return vec3_splat(0.0);
 }
 
 // Galaxy stars - needs further optimization
