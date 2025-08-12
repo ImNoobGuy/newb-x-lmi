@@ -4,7 +4,7 @@
 #include "detection.h"
 #include "sky.h"
 
-float nlRenderFogFade(nl_skycolor skycol, float relativeDist, nl_environment env, vec3 FOG_COLOR, vec2 FOG_CONTROL, vec3 wPos, vec3 tsp, float time) {
+float nlRenderFogFade(float relativeDist, vec3 FOG_COLOR, vec2 FOG_CONTROL) {
   #ifdef NL_FOG
     float fade = smoothstep(FOG_CONTROL.x, FOG_CONTROL.y, relativeDist);
 
@@ -36,7 +36,7 @@ float nlRenderGodRay(vec3 cPos, vec3 worldPos, float t, vec2 uv1, float relative
   vol *= clamp(3.0*(FOG_COLOR.r-FOG_COLOR.b),0.0,1.0);
   vol = clamp(vol,0.0,1.0);
   
-  return fogColor + 0.3*vol*(NL_GODRAY-fogColor);
+  return fogColor + 0.3*vol*(1.0-fogColor);
 
   // dawn/dusk mask
   vol *= clamp(3.0*(FOG_COLOR.r-FOG_COLOR.b), 0.0, 1.0);

@@ -28,7 +28,7 @@ void main() {
 
     vec3 skyColor = nlRenderSky(skycol, env, -viewDir, v_fogColor, v_underwaterRainTime.z);
     #ifdef NL_SHOOTING_STAR
-      skyColor += NL_SHOOTING_STAR*nlRenderShootingStar(viewDir, v_fogColor, v_underwaterRainTime.z);
+      skyColor += NL_SHOOTING_STAR*nlRenderShootingStar(env, viewDir, v_fogColor, v_underwaterRainTime.z);
     #endif
     #ifdef NL_GALAXY_STARS
       skyColor += NL_GALAXY_STARS*nlRenderGalaxy(viewDir, v_fogColor, env, v_underwaterRainTime.z);

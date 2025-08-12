@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_wPos, v_isTree
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -14,7 +14,8 @@ uniform vec4 FogColor;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 
-#define NL_CLOUD_PARAMS(x) NL_CLOUD2##x##STEPS, NL_CLOUD2##x##THICKNESS, NL_CLOUD2##x##RAIN_THICKNESS, NL_CLOUD2##x##VELOCITY, NL_CLOUD2##x##SCALE, NL_CLOUD2##x##DENSITY, NL_CLOUD2##x##SHAPE
+#define a_texcoord1 vec2(fract(a_texcoord1.x*15.9375),floor(a_texcoord1.x*15.9375)*0.0625);
+#define NL_CLOUD_PARAMS(x) NL_CLOUD2##x##THICKNESS, NL_CLOUD2##x##RAIN_THICKNESS, NL_CLOUD2##x##VELOCITY, NL_CLOUD2##x##SCALE, NL_CLOUD2##x##DENSITY, NL_CLOUD2##x##SHAPE
 
 void main() {
   #ifdef INSTANCING
@@ -22,6 +23,8 @@ void main() {
   #else
     mat4 model = u_model[0];
   #endif
+  
+  vec4 diffuse = texture2D(s_MatTexture, a_texcoord0);
 
   vec3 worldPos = mul(model, vec4(a_position, 1.0)).xyz;
 
@@ -74,7 +77,7 @@ void main() {
   nl_skycolor skycol = nlSkyColors(env, FogColor.rgb);
 
   // time
-  highp float t = ViewPositionAndTime.w;
+  highp float t = 0.3*ViewPositionAndTime.w;
 
   // convert color space to linear-space
   #ifdef SEASONS
@@ -93,7 +96,7 @@ void main() {
   vec3 light = nlLighting(skycol, env, worldPos, torchColor, a_color0.rgb, FogColor.rgb, uv1, lit, isTree, shade, t);
 
   #if defined(ALPHA_TEST) && (defined(NL_PLANTS_WAVE) || defined(NL_LANTERN_WAVE)) && !defined(RENDER_AS_BILLBOARDS)
-    nlWave(worldPos, light, env.rainFactor, uv1, lit, a_texcoord0, bPos, a_color0, cPos, tiledCpos, t, s_MatTexture, isColored, camDis, isTree, FogColor.rgb);
+    nlWave(worldPos, light, env.rainFactor, uv1, lit, a_texcoord0, bPos, a_color0, cPos, tiledCpos, t, s_MatTexture, isColored, camDis, isTree);
   #endif
 
   // loading chunks
@@ -101,7 +104,7 @@ void main() {
 
   vec4 fogColor;
   fogColor.rgb = nlRenderSky(skycol, env, viewDir, FogColor.rgb, t);
-  fogColor.a = nlRenderFogFade(skycol, relativeDist, env, FogColor.rgb, FogAndDistanceControl.xy, worldPos, vec3(0.0,0.0,0.0), t);
+  fogColor.a = nlRenderFogFade(relativeDist, FogColor.rgb, FogAndDistanceControl.xy);
   #ifdef NL_GODRAY 
     fogColor.a = nlRenderGodRay(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb, fogColor.a);
   #endif
@@ -136,6 +139,7 @@ void main() {
   #ifdef NL_RAIN_MIST_OPACITY
     if (env.rainFactor > 0.0) {
       float humidAir = env.rainFactor*lit.y*lit.y*nlWindblow(pos.xyz, t);
+      fogColor.rgb = mix(fogColor.rgb, vec3_splat(0.8), humidAir*NL_RAIN_MIST_OPACITY);
       fogColor.a = mix(fogColor.a, 1.0, humidAir*NL_RAIN_MIST_OPACITY);
     }
   #endif
@@ -163,7 +167,7 @@ void main() {
       color.rgb *= lava.rgb;
     }
   #endif
-
+  
   v_extra = vec4(shade, worldPos.y, water, shimmer);
   v_refl = refl;
   v_texcoord0 = a_texcoord0;
@@ -171,8 +175,8 @@ void main() {
   v_color0 = color;
   v_color1 = a_color0;
   v_fog = fogColor;
-  v_wPos = worldPos;
   v_isTree = isTree ? 1.0 : 0.0;
+  v_wPos = worldPos;
 
   #else
 

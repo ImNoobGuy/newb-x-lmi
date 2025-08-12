@@ -74,18 +74,17 @@ void extraPlantsFlag(inout bool shouldWave, vec2 uv0, bool isTop) {
 void nlWave(
   inout vec3 worldPos, inout vec3 light, float rainFactor, vec2 uv1, vec2 lit,
   vec2 uv0, vec3 bPos, vec4 COLOR, vec3 cPos, vec3 tiledCpos, highp float t, sampler2D terrainTex,
-  bool isColored, float camDist, bool isTreeLeaves, vec3 FOG_COLOR
+  bool isColored, float camDist, bool isTreeLeaves
 ) {
-
-  if (camDist > 16.0) {  // only wave nearby (better performance)
+  if (camDist > NL_WAVE_RANGE) {  // only wave nearby (better performance)
     return;
   }
-  
-  float waveFade = 2.0*max((camDist/16.0) - 0.5, 0.0);
+
+  float waveFade = 2.0*max((camDist/NL_WAVE_RANGE) - 0.5, 0.0);
   waveFade *= waveFade;
 
   // texture atlas has 64x32 textures (uv0.xy division)
-  float texPosY = fract(uv0.y*32.0);
+  float texPosY = fract(uv0.y*vec2(textureSize(terrainTex, 0)).y/32.0);
 
   // x and z distance from block center
   vec2 bPosC = abs(bPos.xz-0.5);
@@ -95,15 +94,15 @@ void nlWave(
   bool isVines = (bPosC.x==0.453125 && bPos.z==0.0) || (bPosC.y==0.453125 && bPos.x==0.0);
   bool isFarmPlant = (bPos.y==0.9375) && (bPosC.x==0.25 ||  bPosC.y==0.25);
   bool shouldWave = ((isTreeLeaves || isPlants || isVines) && isColored) || (isFarmPlant && isTop);
-  bool isRedstone = COLOR.r > 0.25 && COLOR.r > 3.0*COLOR.g  && COLOR.b == 0.0;
+  bool isRedStone = COLOR.r > 0.25 && COLOR.r > 3.0*COLOR.g  && COLOR.b == 0.0;
 
-  float windStrength = lit.y*(noise1D(t*0.36) + rainFactor*0.4);
+  float windStrength = lit.y*(noise1D(t*0.36) + rainFactor*0.4)*(1.0-waveFade);
 
   // darken farm plants bottom
   light *= isFarmPlant && !isTop ? 0.7 : 1.1;
-  if (isColored && !isTreeLeaves && uv0.y>0.375 && uv0.y<0.466 && !isRedstone) {
+  if (isColored && !isTreeLeaves && uv0.y>0.375 && uv0.y<0.466 && !isRedStone && !isVines) {
     // make grass bottom more dark depending how deep it is
-    light *= mix(isTop ? 1.2 : 1.2 - 1.8*(bPos.y>0.0 ? 1.5-bPos.y : 0.5), 1.0, waveFade);
+    light *= mix(isTop ? 1.2 : 1.2 - 1.2*(bPos.y>0.0 ? 1.5-bPos.y : 0.5), 1.0, 0.0);
   }
 
   #ifdef NL_PLANTS_WAVE

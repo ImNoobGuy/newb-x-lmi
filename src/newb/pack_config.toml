@@ -5,16 +5,16 @@ description = '''
 §c%w
 §7- A better aesthetic vanilla shader for Minecraft!
 %v
-§3https://github.com/Enoughrise/newb-x-lmi
+§3https://github.com/ImNoobGuy/newb-x-lmi
 ''' # %w = patch warning, %v = version
-authors = ["devendrn", "Enoughrise11"]
-url = "https://github.com/Enoughrise/newb-x-lmi"
+authors = ["devendrn", "ImNoobGuy"]
+url = "https://github.com/ImNoobGuy/newb-x-lmi"
 uuid = "cb03728a-514a-4af7-86e0-7ba5f91905f4" # Use https://www.uuidgenerator.net/version4
 materials = ["Sky", "RenderChunk", "Actor", "ActorGlint", "EndSky", "Clouds", "SunMoon", "Weather", "ItemInHandTextured", "ItemInHandColor", "ItemInHandColorGlint", "Stars"]
 
 [info] 
 copyright = '''
-Copyright © 2024 %a, and "Newb Shader" Contributors
+Copyright © 2025 %a, and "Newb Shader" Contributors
 
 This compiled "Newb Shader" resource pack (source code: https://github.com/devendrn/newb-x-mcbe under MIT License) is licensed under CC BY-ND 4.0 (https://creativecommons.org/licenses/by-nd/4.0/). Redistribute only unmodified copies with proper attribution to variant creators. Do not distribute derivatives.
 
@@ -72,7 +72,7 @@ Galaxy Stars!\n\nAdded a Colorful galaxies to your night sky (bit laggy)
 define = "SOFT_CLOUDS"
 materials = ["Clouds"]
 description = '''
-Soft Clouds\n\nchange the clouds to softer and lighter clouds
+Soft Clouds\n\nchange the clouds to softer and lighter
 '''
 [[subpack]]
 define = "MULTILAYER_ROUNDED_CLOUDS"

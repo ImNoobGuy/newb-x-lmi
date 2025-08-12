@@ -7,7 +7,7 @@ $input v_color0
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
 
-#define NL_CLOUD_PARAMS(x) NL_CLOUD2##x##STEPS, NL_CLOUD2##x##THICKNESS, NL_CLOUD2##x##RAIN_THICKNESS, NL_CLOUD2##x##VELOCITY, NL_CLOUD2##x##SCALE, NL_CLOUD2##x##DENSITY, NL_CLOUD2##x##SHAPE
+#define NL_CLOUD_PARAMS(x) NL_CLOUD2##x##THICKNESS, NL_CLOUD2##x##RAIN_THICKNESS, NL_CLOUD2##x##VELOCITY, NL_CLOUD2##x##SCALE, NL_CLOUD2##x##DENSITY, NL_CLOUD2##x##SHAPE
 
 void main() {
   vec4 color = v_color0;
@@ -16,7 +16,7 @@ void main() {
     vec3 vDir = normalize(v_color0.xyz);
 
     #if NL_CLOUD_TYPE == 2
-      color = renderCloudsRounded(vDir, v_color0.xyz, v_color1.w, v_color2.w, v_color1.rgb, v_color1.rgb, NL_CLOUD_PARAMS(_));
+      color = renderCloudsRounded(vDir, v_color0.xyz, v_color1.w, v_color2.w, v_color2.rgb, v_color1.rgb, NL_CLOUD_PARAMS(_));
 
     #ifdef NL_CLOUD2_LAYER2
       vec2 parallax = vDir.xz / abs(vDir.y) * NL_CLOUD2_LAYER2_OFFSET;

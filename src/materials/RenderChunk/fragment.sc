@@ -1,7 +1,10 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_wPos, v_isTree
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
+
+uniform vec4 ViewPositionAndTime;
+uniform vec4 FogColor;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_SeasonsTexture);
@@ -31,6 +34,8 @@ void main() {
   
   diffuse.rgb += contrast*contrastInt*fade;
   vec4 color = v_color0;
+  
+  highp float t = ViewPositionAndTime.w;
 
   #ifdef ALPHA_TEST
     if ((v_isTree > 0.5 && gl_FrontFacing) || (diffuse.a < 0.6)) {

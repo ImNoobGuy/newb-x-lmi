@@ -80,7 +80,7 @@ vec3 renderOverworldSky(nl_skycolor skycol, vec3 viewDir) {
   // gradient 2  h^8 mix h^2
   float gradient1 = hsq*hsq*hsq*hsq;
   gradient1 *= gradient1;
-  float gradient2 = 0.50*gradient1 + 0.30*hsq;
+  float gradient2 = 0.51*gradient1 + 0.27*hsq;
   gradient1 *= gradient1;
 
   vec3 sky = mix(skycol.horizon, skycol.horizonEdge, gradient1);
@@ -99,7 +99,7 @@ vec3 getSunBloom(float viewDirX, vec3 horizonEdgeCol, vec3 FOG_COLOR) {
   float sunBloom = spread*spread;
   sunBloom = 0.2*spread + sunBloom*sunBloom*0.6;
 
-  return NL_MORNING_SUN_COL*horizonEdgeCol*(sunBloom*factor*factor);
+  return vec3(1.0,0.43,0.0)*horizonEdgeCol*(sunBloom*factor*factor);
 }
 
 float EndHorizonRay(float a, float t, vec3 v, float ra, float tm){
@@ -195,37 +195,39 @@ vec3 getSkyRefl(nl_skycolor skycol, nl_environment env, vec3 viewDir, vec3 FOG_C
 }
 
 // shooting star
-vec3 nlRenderShootingStar(vec3 viewDir, vec3 FOG_COLOR, float t) {
-  // transition vars
-  float h = t / (NL_SHOOTING_STAR_DELAY + NL_SHOOTING_STAR_PERIOD);
-  float h0 = floor(h);
-  t = (NL_SHOOTING_STAR_DELAY + NL_SHOOTING_STAR_PERIOD) * (h-h0);
-  t = min(t/NL_SHOOTING_STAR_PERIOD, 1.0);
-  float t0 = t*t;
-  float t1 = 1.0-t0;
-  t1 *= t1; t1 *= t1; t1 *= t1;
+vec3 nlRenderShootingStar(nl_environment env, vec3 viewDir, vec3 FOG_COLOR, float t) {
+  if (!env.underwater) {
+    // transition vars
+    float h = t / (NL_SHOOTING_STAR_DELAY + NL_SHOOTING_STAR_PERIOD);
+    float h0 = floor(h);
+    t = (NL_SHOOTING_STAR_DELAY + NL_SHOOTING_STAR_PERIOD) * (h-h0);
+    t = min(t/NL_SHOOTING_STAR_PERIOD, 1.0);
+    float t0 = t*t;
+    float t1 = 1.0-t0;
+    t1 *= t1; t1 *= t1; t1 *= t1;
 
-  // randomize size, rotation, add motion, add skew
-  float r = fract(sin(h0) * 43758.545313);
-  float a = 6.2831*r;
-  float cosa = cos(a);
-  float sina = sin(a);
-  vec2 uv = viewDir.xz * (6.0 + 4.0*r);
-  uv = vec2(cosa*uv.x + sina*uv.y, -sina*uv.x + cosa*uv.y);
-  uv.x += t1 - t;
-  uv.x -= 2.0*r + 3.5;
-  uv.y += viewDir.y * 3.0;
+    // randomize size, rotation, add motion, add skew
+    float r = fract(sin(h0) * 43758.545313);
+    float a = 6.2831*r;
+    float cosa = cos(a);
+    float sina = sin(a);
+    vec2 uv = viewDir.xz * (6.0 + 4.0*r);
+    uv = vec2(cosa*uv.x + sina*uv.y, -sina*uv.x + cosa*uv.y);
+    uv.x += t1 - t;
+    uv.x -= 2.0*r + 3.5;
+    uv.y += viewDir.y * 3.0;
 
-  // draw star
-  float g = 1.0-min(abs((uv.x-0.95))*20.0, 1.0); // source glow
-  float s = 1.0-min(abs(8.0*uv.y), 1.0); // line
-  s *= s*s*smoothstep(-1.0+1.96*t1, 0.98-t, uv.x); // decay tail
-  s *= s*s*smoothstep(1.0, 0.98-t0, uv.x); // decay source
-  s *= 1.0-t1; // fade in
-  s *= 1.0-t0; // fade out
-  s *= 0.7 + 16.0*g*g;
-  s *= max(1.0-FOG_COLOR.r-FOG_COLOR.g-FOG_COLOR.b, 0.0); // fade out during day
-  return s*vec3(0.8, 0.9, 1.0);
+    // draw star
+    float g = 1.0-min(abs((uv.x-0.95))*20.0, 1.0); // source glow
+    float s = 1.0-min(abs(8.0*uv.y), 1.0); // line
+    s *= s*s*smoothstep(-1.0+1.96*t1, 0.98-t, uv.x); // decay tail
+    s *= s*s*smoothstep(1.0, 0.98-t0, uv.x); // decay source
+    s *= 1.0-t1; // fade in
+    s *= 1.0-t0; // fade out
+    s *= 0.7 + 16.0*g*g;
+    s *= max(1.0-FOG_COLOR.r-FOG_COLOR.g-FOG_COLOR.b, 0.0); // fade out during day
+    return s*vec3(0.8, 0.9, 1.0);
+  }
 }
 
 // Galaxy stars - needs further optimization

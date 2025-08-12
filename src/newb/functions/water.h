@@ -16,7 +16,7 @@ float calculateFresnel(float cosR, float r0) {
 
 vec4 nlWater(
   nl_skycolor skycol, nl_environment env, inout vec3 wPos, inout vec4 color, vec4 COLOR, vec3 viewDir, vec3 light, vec3 cPos, vec3 tiledCpos, 
-  float fractCposY, vec3 FOG_COLOR, vec2 lit, highp float t, float camDist, vec3 torchColor, const int steps, const float thickness, const float thickness_rain, const float speed,
+  float fractCposY, vec3 FOG_COLOR, vec2 lit, highp float t, float camDist, vec3 torchColor, const float thickness, const float thickness_rain, const float speed,
     const vec2 scale, const float density, const vec2 boxiness
 ) {
 
@@ -73,7 +73,7 @@ vec4 nlWater(
   float fresnel = calculateFresnel(cosR, 0.07);
   float opacity = 1.0-cosR;
 
-  color.rgb *= 0.22*NL_WATER_TINT*(1.0-0.8*fresnel); // 0.22*NL_WATER_TINT*(1.0-0.8*fresnel);
+  color.rgb *= 0.22*NL_WATER_TINT; // 0.22*NL_WATER_TINT*(1.0-0.8*fresnel);
 
   color.a = mix(COLOR.a*NL_WATER_TRANSPARENCY, 1.0, opacity*opacity);
 
