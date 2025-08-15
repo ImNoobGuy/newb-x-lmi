@@ -1,4 +1,4 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_bPos, v_uv1, v_tCpos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -65,7 +65,6 @@ void main() {
     diffuse.a = 1.0;
   #endif
 
-  diffuse.rgb *= color.rgb;
   diffuse.rgb += glow;
 
   if (v_extra.b > 0.9) {
@@ -80,6 +79,7 @@ void main() {
     }
   }
 
+  diffuse.rgb *= color.rgb;
   diffuse.rgb = mix(diffuse.rgb, v_fog.rgb, v_fog.a);
 
   diffuse.rgb = colorCorrection(diffuse.rgb);

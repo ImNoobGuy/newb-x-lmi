@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_bPos, v_uv1, v_tCpos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -176,6 +176,9 @@ void main() {
   v_fog = fogColor;
   v_isTree = isTree ? 1.0 : 0.0;
   v_wPos = worldPos;
+  v_bPos = bPos;
+  v_uv1 = uv1;
+  v_tCpos = tiledCpos;
 
   #else
 
