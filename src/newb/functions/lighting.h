@@ -55,7 +55,7 @@ vec3 nlLighting(
   if (env.nether || env.end) {
     // nether & end lighting
 
-    light = env.end ? vec3(0.05,0.05,0.05) : NL_NETHER_AMBIENT;
+    light = env.end ? vec3(0.1,0.1,0.1) : NL_NETHER_AMBIENT;
 
     light += skycol.horizon + torchLight*0.5;
   } else {

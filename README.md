@@ -7,7 +7,7 @@
 
 <br>
 
-![Screenshots](docs/screenshots.jpg "Newb X Legacy 15.47, MCBE 1.21.0")
+![Screenshots](docs/IMG_20250814_150141.png "Newb X LMI 16.0, MCBE 1.21.100")
 
 <br>
 
@@ -22,11 +22,14 @@ Incoming :)
 > Shaders are not officially supported on Minecraft Bedrock. The following are unofficial ways to load shaders.
 
 ### Android
-1. Install [Patched Minecraft App](https://devendrn.github.io/renderdragon-shaders/shaders/installation/android#using-patch-app)
-2. Import the resource pack and activate it in global resources.
+1. Install [MB Loader App](https://play.google.com/store/apps/details?id=io.bambosan.mbloader&pcampaignid=web_share).
+2. Click on "Load with mbl2" or "Load with draco" (read description for difference.
+3. Import the resource pack and activate it in global resources.
+> [!NOTE]
+> You still need original Minecraft to load the app
 
 ### Windows
-1. Use [BetterRenderDragon](https://github.com/ddf8196/BetterRenderDragon) to enable MaterialBinLoader.
+1. Use [BetterRenderDragon](https://github.com/QYCottage/BetterRenderDragon/releases/) to enable MaterialBinLoader.
 2. Import the resource pack and activate it in global resources.
 
 ### Linux / Mac

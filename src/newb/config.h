@@ -38,8 +38,8 @@
  
 /* Terrain lighting */
 #define NL_SUN_INTENSITY 2.78   // 0.5 weak ~ 5.0 bright
-#define NL_TORCH_INTENSITY 0.88  // 0.5 weak ~ 3.0 bright
-#define NL_NIGHT_BRIGHTNESS -0.47 // 0.0 dark ~ 2.0 bright
+#define NL_TORCH_INTENSITY 0.9  // 0.5 weak ~ 3.0 bright
+#define NL_NIGHT_BRIGHTNESS -0.45 // 0.0 dark ~ 2.0 bright
 #define NL_CAVE_BRIGHTNESS -0.05  // 0.0 dark ~ 2.0 bright
 #define NL_SHADOW_INTENSITY 1.0 // 0.0 no shadow ~ 1.0 strong shadow
 #define NL_BLINKING_TORCH     // [toggle] flickering light
@@ -192,7 +192,7 @@
 //#define NL_GROUND_AURORA_REFL    // [toggle] aurora reflection on ground
 
 /* Entity (Actor, ItemInHand) */
-#define NL_ENTITY_BRIGHTNESS     0.48 // 0.1 dark ~ 1.6 bright
+#define NL_ENTITY_BRIGHTNESS     0.64 // 0.1 dark ~ 1.6 bright
 #define NL_ENTITY_EDGE_HIGHLIGHT 0.41 // 0.0 no highlight ~ 1.6 bright highlight
 #define NL_GLINT_INTENSITY 75.0				// 0.5 subtle ~ 80.0 very bright 💀
 
@@ -203,7 +203,7 @@
 
 /* Lava effects */
 #define NL_LAVA_NOISE             // [toggle] darken lava in certain regions
-#define NL_LAVA_NOISE_BUMP 0.5    // [toggle] 0.1 subtle ~ 0.8 massive waves
+#define NL_LAVA_NOISE_BUMP 0.65    // [toggle] 0.1 subtle ~ 0.8 massive waves
 #define NL_LAVA_NOISE_SPEED 0.06  // 0.0 still ~ 0.1 fast
 
 
