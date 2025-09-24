@@ -1,10 +1,7 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_bPos, v_uv1, v_tCpos
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
-
-uniform vec4 ViewPositionAndTime;
-uniform vec4 FogColor;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_SeasonsTexture);
@@ -15,9 +12,8 @@ void main() {
     gl_FragColor = vec4(1.0,1.0,1.0,1.0);
     return;
   #endif
-  
+
   vec4 diffuse = texture2D(s_MatTexture, v_texcoord0);
-  
   vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
   
   vec3 neighbor = texture2D(s_MatTexture, v_texcoord0 + offset * vec2(-0.15, -0.15)).rgb; // vec2 = Jauh / deket nya offset texture & simulasi arah cahaya
@@ -34,8 +30,6 @@ void main() {
   
   diffuse.rgb += contrast*contrastInt*fade;
   vec4 color = v_color0;
-  
-  highp float t = ViewPositionAndTime.w;
 
   #ifdef ALPHA_TEST
     if ((v_isTree > 0.5 && gl_FrontFacing) || (diffuse.a < 0.6)) {
@@ -65,6 +59,7 @@ void main() {
     diffuse.a = 1.0;
   #endif
 
+  diffuse.rgb *= color.rgb;
   diffuse.rgb += glow;
 
   if (v_extra.b > 0.9) {
@@ -79,7 +74,6 @@ void main() {
     }
   }
 
-  diffuse.rgb *= color.rgb;
   diffuse.rgb = mix(diffuse.rgb, v_fog.rgb, v_fog.a);
 
   diffuse.rgb = colorCorrection(diffuse.rgb);

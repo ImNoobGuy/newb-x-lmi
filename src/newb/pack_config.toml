@@ -1,6 +1,6 @@
 name = "§l§gNewb §fX §bLMI"
-version = [0, 16, 0]
-min_supported_mc_version = [1, 21, 20]
+version = [0, 15, 8]
+min_supported_mc_version = [1, 21, 100]
 description = '''
 §c%w
 §7- A better aesthetic vanilla shader for Minecraft!
@@ -33,17 +33,11 @@ description = '''
 §9Cave Vision§r\n\nWill make the cave slightly brighter
 '''
 [[subpack]]
-define = "CHUNK_ANIMATION"
+define = "CHUNK_ANIM"
 materials = ["RenderChunk"]
 description = '''
 Chunk Loading Animation\n\nadd a animation when loading a chunk
-'''
-[[subpack]]
-define = "CHUNK_ANIMATION_FALL_FROM_TOP"
-materials = ["RenderChunk"]
-description = '''
-Chunk Loading Animation FFT\n\nadd a animation when loading a chunk\nbut the chunks are fall from top!
-'''
+''' 
 [[subpack]]
 define = "GROUND_REFLECTION"
 materials = ["RenderChunk"]
@@ -52,9 +46,9 @@ Ground Reflection\n\nAdd a slightly fake ground reflection
 '''
 [[subpack]]
 define = "NO_AURORA_AND_CLOUD_REFLECTION"
-materials = ["RenderChunk"]
+materials = ["RenderChunk", "Clouds"]
 description = '''
-No Aurora And Cloud Reflection\n\nWill remove the cloud and aurora reflection \n\nimprove fps when in the sea
+Aurora And Cloud Reflection\n\nWill add the cloud and aurora reflection
 '''
 [[subpack]]
 define = "RAINBOW"
@@ -67,6 +61,24 @@ define = "GALAXY_STARS"
 materials = ["Sky"]
 description = '''
 Galaxy Stars!\n\nAdded a Colorful galaxies to your night sky (bit laggy)
+'''
+[[subpack]]
+define = "NO_SHOOTING_STAR"
+materials = ["Sky"]
+description = '''
+No Shooting Star\n\nDisable the shooting star feature if you don't like it
+'''
+[[subpack]]
+define = "END_VORTEX"
+materials = ["EndSky"]
+description = '''
+End Vortex\n\nAdded some sort of Vortex above your head when in the End Dimension
+'''
+[[subpack]]
+define = "VANILLA_CLOUDS"
+materials = ["Clouds"]
+description = '''
+Vanilla Clouds\n\nadd a Improved Vanilla style clouds
 '''
 [[subpack]]
 define = "SOFT_CLOUDS"
@@ -85,18 +97,6 @@ define = "REALISTIC_CLOUDS"
 materials = ["Clouds"]
 description = '''
 Realistic Clouds\n\nAs it say it make the cloud realistic (a bit laggy)
-'''
-[[subpack]]
-define = "VANILLA_CLOUDS"
-materials = ["Clouds"]
-description = '''
-Vanilla Clouds\n\nadd a Improved Vanilla style clouds
-'''
-[[subpack]]
-define = "NO_SHOOTING_STAR"
-materials = ["Sky"]
-description = '''
-No Shooting Star\n\nDisable the shooting star feature if you don't like it
 '''
 [[subpack]]
 define = "NO_WAVE_NO_FOG"

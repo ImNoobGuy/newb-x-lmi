@@ -54,8 +54,9 @@ void main() {
     vec3 light = nlEntityLighting(env, a_position, a_normal, World, TileLightColor, OverlayColor, skycol.horizonEdge, ViewPositionAndTime.w);
 
     vec4 glintuv;
-    glintuv.xy = calculateLayerUV(texcoord0, UVAnimation.x, UVAnimation.z, UVScale.xy);
-    glintuv.zw = calculateLayerUV(texcoord0, UVAnimation.y, UVAnimation.w, UVScale.xy);
+    vec2 glintBase = wpos.xz * 0.05;
+    glintuv.xy = calculateLayerUV(glintBase, UVAnimation.x, UVAnimation.z, UVScale.xy);
+    glintuv.zw = calculateLayerUV(glintBase + 0.37, UVAnimation.y, UVAnimation.w, UVScale.xy);
 
     v_glintuv = glintuv;
     v_color0 = a_color0;

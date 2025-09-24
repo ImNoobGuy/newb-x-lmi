@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_bPos, v_uv1, v_tCpos
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -12,10 +12,8 @@ uniform vec4 FogAndDistanceControl;
 uniform vec4 ViewPositionAndTime;
 uniform vec4 FogColor;
 
-SAMPLER2D_AUTOREG(s_MatTexture);
-
 #define a_texcoord1 vec2(fract(a_texcoord1.x*15.9375),floor(a_texcoord1.x*15.9375)*0.0625);
-#define NL_CLOUD_PARAMS(x) NL_CLOUD2##x##THICKNESS, NL_CLOUD2##x##RAIN_THICKNESS, NL_CLOUD2##x##VELOCITY, NL_CLOUD2##x##SCALE, NL_CLOUD2##x##DENSITY, NL_CLOUD2##x##SHAPE
+SAMPLER2D_AUTOREG(s_MatTexture);
 
 void main() {
   #ifdef INSTANCING
@@ -23,13 +21,11 @@ void main() {
   #else
     mat4 model = u_model[0];
   #endif
-  
-  vec4 diffuse = texture2D(s_MatTexture, a_texcoord0);
 
   vec3 worldPos = mul(model, vec4(a_position, 1.0)).xyz;
 
   #if !(defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY) || defined(INSTANCING))
-  
+
   #ifdef NL_CHUNK_LOAD_ANIM
     worldPos.y -= NL_CHUNK_LOAD_ANIM*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x;
   #endif
@@ -77,7 +73,7 @@ void main() {
   nl_skycolor skycol = nlSkyColors(env, FogColor.rgb);
 
   // time
-  highp float t = 0.3*ViewPositionAndTime.w;
+  highp float t = ViewPositionAndTime.w;
 
   // convert color space to linear-space
   #ifdef SEASONS
@@ -127,7 +123,7 @@ void main() {
     color.a = mix(color.a, 1.0, 0.5*clamp(relativeDist, 0.0, 1.0));
     if (a_color0.b > 0.3 && a_color0.a < 0.95) {
       water = 1.0;
-      refl = nlWater(skycol, env, worldPos, color, a_color0, viewDir, light, cPos, tiledCpos, bPos.y, FogColor.rgb, lit, t, camDis, torchColor, NL_CLOUD_PARAMS(_));
+      refl = nlWater(skycol, env, worldPos, color, a_color0, viewDir, light, cPos, tiledCpos, bPos.y, FogColor.rgb, lit, t, camDis, torchColor);
     } else {
       refl = nlRefl(skycol, env, color, lit, tiledCpos, camDis, worldPos, viewDir, torchColor, FogColor.rgb, FogAndDistanceControl.z, t);
     }
@@ -154,7 +150,7 @@ void main() {
   #else
     float shimmer = 1.0;
   #endif
-  
+
   #ifdef NL_LAVA_NOISE
     bool isc = (a_color0.r+a_color0.g+a_color0.b) > 2.999;
     bool isb = bPos.y < 0.891 && bPos.y > 0.889;
@@ -166,7 +162,7 @@ void main() {
       color.rgb *= lava.rgb;
     }
   #endif
-  
+
   v_extra = vec4(shade, worldPos.y, water, shimmer);
   v_refl = refl;
   v_texcoord0 = a_texcoord0;
@@ -176,9 +172,6 @@ void main() {
   v_fog = fogColor;
   v_isTree = isTree ? 1.0 : 0.0;
   v_wPos = worldPos;
-  v_bPos = bPos;
-  v_uv1 = uv1;
-  v_tCpos = tiledCpos;
 
   #else
 

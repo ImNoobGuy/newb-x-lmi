@@ -98,12 +98,12 @@ void nlWave(
 
   float windStrength = lit.y*(noise1D(t*0.36) + rainFactor*0.4)*(1.0-waveFade);
 
-  // darken farm plants bottom
+  /*// darken farm plants bottom
   light *= isFarmPlant && !isTop ? 0.7 : 1.1;
   if (isColored && !isTreeLeaves && uv0.y>0.375 && uv0.y<0.466 && !isRedStone && !isVines) {
     // make grass bottom more dark depending how deep it is
     light *= mix(isTop ? 1.2 : 1.2 - 1.2*(bPos.y>0.0 ? 1.5-bPos.y : 0.5), 1.0, 0.0);
-  }
+  }*/
 
   #ifdef NL_PLANTS_WAVE
     #ifdef NL_EXTRA_PLANTS_WAVE

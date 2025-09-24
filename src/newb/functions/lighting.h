@@ -55,13 +55,13 @@ vec3 nlLighting(
   if (env.nether || env.end) {
     // nether & end lighting
 
-    light = env.end ? vec3(0.1,0.1,0.1) : NL_NETHER_AMBIENT;
+    light = env.end ? vec3(0.3,0.3,0.3) : NL_NETHER_AMBIENT;
 
     light += skycol.horizon + torchLight*0.5;
   } else {
     // overworld lighting
 
-    float dayFactor = min(dot(FOG_COLOR.rgb, vec3(0.5,0.4,0.4))*(1.0 + 1.9*env.rainFactor), 1.0);
+    float dayFactor = min(dot(FOG_COLOR.rgb, vec3(0.5,0.4,0.4))*(1.0 + 1.9*env.rainFactor), 1.0); // use env.dayFactor here?
     float nightFactor = 1.0-dayFactor*dayFactor;
     float rainDim = min(FOG_COLOR.g, 0.25)*env.rainFactor;
     float lightIntensity = NL_SUN_INTENSITY*(1.0 - rainDim)*(1.0 + NL_NIGHT_BRIGHTNESS*nightFactor);
@@ -79,7 +79,7 @@ vec3 nlLighting(
 
     // shadow cast by simple cloud
     #ifdef NL_CLOUD_SHADOW
-        shadow *= smoothstep(0.6, 0.1, cloudNoise2D(2.0*wPos.xz*NL_CLOUD1_SCALE, t, env.rainFactor));
+      shadow *= smoothstep(0.6, 0.1, cloudNoise2D(2.0*wPos.xz*NL_CLOUD1_SCALE, t, env.rainFactor));
     #endif
 
     // direct light from top
@@ -104,7 +104,7 @@ vec3 nlLighting(
 
   // brighten tree leaves
   if (isTree) {
-    light *= 3.05;
+    light *= 2.25;
   }
 
   return light;
@@ -145,7 +145,7 @@ vec3 nlEntityLighting(nl_environment env, vec3 pos, vec4 normal, mat4 world, vec
 
   // nether, end, underwater tint
   if (env.nether) {
-    light *= tileLightCol.x*NL_NETHER_AMBIENT*1.0;
+    light *= tileLightCol.x*NL_NETHER_AMBIENT*0.5;
   } else if (env.end) {
     light *= vec3(1.98,1.25,2.3);
   } else if (env.underwater) {
@@ -158,11 +158,15 @@ vec3 nlEntityLighting(nl_environment env, vec3 pos, vec4 normal, mat4 world, vec
 }
 
 float nlEntityEdgeHighlight(vec4 edgemap) {
-  vec2 len = min(abs(edgemap.xy),abs(edgemap.zw));
-  len *= len;
-  len *= len;
-  float ambient = len.x + len.y*(1.0-len.x);
-  return NL_ENTITY_BRIGHTNESS + ambient*NL_ENTITY_EDGE_HIGHLIGHT;
+  #ifdef NL_ENTITY_EDGE_HIGHLIGHT
+    vec2 len = min(abs(edgemap.xy),abs(edgemap.zw));
+    len *= len;
+    len *= len;
+    float ambient = len.x + len.y*(1.0-len.x);
+    return NL_ENTITY_BRIGHTNESS + ambient*NL_ENTITY_EDGE_HIGHLIGHT;
+  #else
+    return 1.0;
+  #endif
 }
 
 vec4 nlEntityEdgeHighlightPreprocess(vec2 texcoord) {
@@ -171,13 +175,13 @@ vec4 nlEntityEdgeHighlightPreprocess(vec2 texcoord) {
 }
 
 vec4 nlLavaNoise(vec3 tiledCpos, float t) {
-  t *= NL_LAVA_NOISE_SPEED;
+  t *=  NL_LAVA_NOISE_SPEED;
   vec3 p = NL_CONST_PI_HALF*tiledCpos;
   float d = fastVoronoi2(4.3*tiledCpos.xz + t, 2.0);
   float n = sin(2.0*(p.x+p.y+p.z) + 1.7*sin(2.0*d + 4.0*(p.x-p.z)) + 4.0*t);
   n = 0.3*d*d +  0.7*n*n;
   n *= n;
-  return vec4(mix(vec3(0.0, 0.0, 0.0), vec3_splat(1.5), n),n);
+  return vec4(mix(vec3_splat(0.0), vec3_splat(1.5), n),n);
 }
 
 #endif
