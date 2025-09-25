@@ -22,13 +22,12 @@ on:
         - All
 
 env:
-  SELECTED_PLATFORM: ${{ inputs.platform || 'All' }}
   SUBVERSION_OPT: ${{ inputs.subversion && format('-v {0}', inputs.subversion) || '' }}
 
 jobs:
   windows:
     runs-on: windows-2022
-    if: ${{ env.SELECTED_PLATFORM == 'Windows' || env.SELECTED_PLATFORM == 'All' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'Windows' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -50,7 +49,7 @@ jobs:
         path: ./build/pack-windows
   android:
     runs-on: ubuntu-latest
-    if: ${{ env.SELECTED_PLATFORM == 'Android' || env.SELECTED_PLATFORM == 'All' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'Android' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -72,7 +71,7 @@ jobs:
         path: ./build/pack-android
   ios:
     runs-on: ubuntu-latest
-    if: ${{ env.SELECTED_PLATFORM == 'IOS' || env.SELECTED_PLATFORM == 'All' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'IOS' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -96,7 +95,7 @@ jobs:
         path: ./build/pack-ios
   merged:
     runs-on: windows-2022
-    if: ${{ env.SELECTED_PLATFORM == 'Merged' || env.SELECTED_PLATFORM == 'All' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'Merged' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
