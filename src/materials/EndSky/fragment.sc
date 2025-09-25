@@ -15,7 +15,7 @@ void main() {
     nl_environment env;
     env.end = true;
     env.nether = false;
-    env.underwater = false;
+    env.underwater = true;
     env.rainFactor = 0.0;
     
     vec4 diffuse = texture2D(s_SkyTexture, v_texcoord0);
