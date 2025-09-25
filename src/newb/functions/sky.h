@@ -275,7 +275,7 @@ vec4 renderVortex(vec3 vdir, float t) {
 
   float r = 3.15;
   vec3 vr = vdir;
-  vr.xy = mul(mat2(cos(r), -sin(r), sin(r), cos(r)) * vr.xy);
+  vr.xy = mul(mat2(cos(r), -sin(r), sin(r), cos(r)), vr.xy);
 
   vec3 vd = vr-vec3(0.0, -1.0, 0.0);
   float nl = sin(1.0*vd.x + t)*sin(15.0*vd.y - t)*sin(15.0*vd.z + t);
