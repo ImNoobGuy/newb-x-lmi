@@ -39,7 +39,8 @@ void main() {
     vec4 color;
 
     #if NL_CLOUD_TYPE == 0
-      pos.y *= (NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS));
+      float thick = NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS);
+      pos.y *= thick;
       worldPos = mul(model, vec4(pos, 1.0)).xyz;
 
       color.rgb = skycol.zenith + skycol.horizonEdge;
@@ -47,6 +48,10 @@ void main() {
       color.rgb *= 1.0 - 0.8*rain;
       color.rgb = colorCorrection(color.rgb);
       color.a = NL_CLOUD0_OPACITY * fog_fade(worldPos.xyz);
+      
+      float norm_y = pos.y / thick;
+      float top_fade = 1.0 - smoothstep(0.8, 1.0, norm_y);
+      color.a *= top_fade;
 
       // clouds.png has two non-overlaping layers:
       // r=unused, g=layers, b=reference, a=unused

@@ -83,7 +83,7 @@ vec4 nlWater(
     }
   #endif
 
-  return vec4(waterRefl, fresnel);
+  return vec4(waterRefl, fresnel)*1.3;
 }
 
 #endif

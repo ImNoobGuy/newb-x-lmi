@@ -7,7 +7,7 @@
 
 // [1] hash function for noise (for highp only)
 float rand(highp vec2 n) {
-  return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+  return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 52.543);
 }
 
 // 1D noise - used in plants,lantern wave
@@ -78,6 +78,13 @@ float fastVoronoi2(vec2 pos, float f) {
   p = fract(p) - 0.5;
   p *= p;
   return 1.0-f*min(p.x+p.y, p.z+p.w);
+}
+
+// Used by renderCloudsRounded() - A hash noise to displace rounded clouds step 
+float hash(vec2 p) {
+  p = fract(p*vec2(123.45, 678.12));
+  p += dot(p, p + 50.0);
+  return fract(p.x*p.y);
 }
 
 #endif

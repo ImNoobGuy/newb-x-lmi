@@ -80,7 +80,7 @@ vec3 renderOverworldSky(nl_skycolor skycol, vec3 viewDir) {
   // gradient 2  h^8 mix h^2
   float gradient1 = hsq*hsq;
   gradient1 *= gradient1;
-  float gradient2 = 0.6*gradient1 + 0.4*hsq;
+  float gradient2 = 0.4*gradient1 + 0.3*hsq;
   gradient1 *= gradient1;
 
   vec3 sky = mix(skycol.horizon, skycol.horizonEdge, gradient1);
@@ -97,33 +97,48 @@ vec3 getSunBloom(float viewDirX, vec3 horizonEdgeCol, vec3 FOG_COLOR) {
 
   float spread = smoothstep(0.0, 1.0, abs(viewDirX));
   float sunBloom = spread*spread;
-  sunBloom = 0.5*spread + sunBloom*sunBloom*sunBloom*1.5;
+  sunBloom = 0.4*spread + sunBloom*sunBloom*sunBloom*0.8;
 
-  return NL_MORNING_SUN_COL*horizonEdgeCol*(sunBloom*factor*factor);
+  return vec3(1.0,0.43,0.0)*horizonEdgeCol*(sunBloom*factor*factor);
 }
 
+float EndHorizonRay(float a, float t, vec3 v, float ra, float tm){
+  float s = sin(a*8.0 + t*tm);
+  s = s*s;
+  s *= 0.4 + 0.7*cos(a*ra - 1.1*t);
+  return smoothstep(0.59-s, -0.7, v.y);
+}
 
 vec3 renderEndSky(vec3 horizonCol, vec3 zenithCol, vec3 viewDir, float t) {
-  t *= 0.1;
+  t *= 0.2;
   float a = atan2(viewDir.x, viewDir.z);
+  vec3 v = viewDir;
+  v.y = smoothstep(0.0, 2.5,abs(v.y));
+
+  float g = EndHorizonRay(a, t, v, 4.0, 1.1);
+  float g2 = EndHorizonRay(a, t, v, 2.0, 0.8);
 
   float n1 = 0.5 + 0.5*sin(3.0*a + t + 10.0*viewDir.x*viewDir.y);
-  float n2 = 0.5 + 0.5*sin(5.0*a + 0.5*t + 5.0*n1 + 0.1*sin(40.0*a -4.0*t));
-
+  float n2 = 0.5 + 0.5*cos(5.0*a + 0.5*t + 5.0*n1 + 0.1*sin(40.0*a -4.0*t));
+    
   float waves = 0.7*n2*n1 + 0.3*n1;
-
+    
   float grad = 0.5 + 0.5*viewDir.y;
   float streaks = waves*(1.0 - grad*grad*grad);
   streaks += (1.0-streaks)*smoothstep(1.0-waves, -1.0, viewDir.y);
 
-  float f = 0.3*streaks + 0.7*smoothstep(1.0, -0.5, viewDir.y);
-  float h = streaks*streaks;
-  float g = h*h;
+  float f = 0.66*streaks + 0.7*smoothstep(1.0, -0.5, viewDir.y);
   g *= g;
+    
+  float verticalFade = pow(1.0 - abs(viewDir.y), 3.0);
+  
+  vec3 sky = vec3(0.0, 0.0, 0.0);
 
-  vec3 sky = mix(zenithCol, horizonCol, f*f);
-  sky += (0.1*streaks + 2.0*g*g*g + h*h*h)*vec3(2.0,0.5,0.0);
-  sky += 0.25*streaks*spectrum(sin(2.0*viewDir.x*viewDir.y+t));
+  sky += mix(zenithCol, horizonCol, f*f)*(1.5 + 0.5 * f)*verticalFade;
+  
+  vec3 rg = (g*g*g*g*3.8)*vec3(0.3,0.0,0.6)*1.95;
+  vec3 rg2 = (g2*g2*g2*g2*3.0)*vec3(0.35,0.25,0.23)*1.95;
+  sky += rg + rg2;
 
   return sky;
 }
@@ -137,19 +152,21 @@ vec3 nlRenderSky(nl_skycolor skycol, nl_environment env, vec3 viewDir, vec3 FOG_
   } else {
     sky = renderOverworldSky(skycol, viewDir);
     #ifdef NL_RAINBOW
+    if (!env.underwater){
       sky += mix(NL_RAINBOW_CLEAR, NL_RAINBOW_RAIN, env.rainFactor)*spectrum((viewDir.z+0.6)*8.0)*max(viewDir.y, 0.0)*FOG_COLOR.g;
+    }
     #endif
     #ifdef NL_UNDERWATER_STREAKS
       if (env.underwater) {
         float a = atan2(viewDir.x, viewDir.z);
         float grad = 0.5 + 0.5*viewDir.y;
         grad *= grad;
-        float spread = (0.5 + 0.5*sin(3.0*a + 0.2*t + 2.0*sin(5.0*a - 0.4*t)));
-        spread *= (0.5 + 0.5*sin(3.0*a - sin(0.5*t)))*grad;
+        float spread = (0.3 + 0.7*sin(12.0*a + 0.4*t + 3.0*sin(20.0*a - 0.6*t)));
+        spread *= (0.3 + 0.7*sin(11.0*a - sin(0.9*t)))*grad;
         spread += (1.0-spread)*grad;
         float streaks = spread*spread;
         streaks *= streaks;
-        streaks = (spread + 3.0*grad*grad + 4.0*streaks*streaks);
+        streaks = (spread + 4.0*grad*grad + 4.0*streaks*streaks);
         sky += 2.0*streaks*skycol.horizon;
       } else 
     #endif
@@ -251,6 +268,36 @@ vec3 nlRenderGalaxy(vec3 vdir, vec3 fogColor, nl_environment env, float t) {
   stars *= mix(1.0, NL_GALAXY_DAY_VISIBILITY, env.dayFactor);
 
   return stars*(1.0-env.rainFactor);
+}
+
+vec4 renderVortex(vec3 vdir, float t) {
+  t *= 1.0;
+
+  float r = 3.15;
+  vec3 vr = vdir;
+  vr.xy = mul(mat2(cos(r), -sin(r), sin(r), cos(r)), vr.xy);
+
+  vec3 vd = vr-vec3(0.0, -1.0, 0.0);
+  float nl = sin(1.0*vd.x + t)*sin(15.0*vd.y - t)*sin(15.0*vd.z + t);
+  float a = atan2(vd.x, vd.z);
+
+  float d = 2.0*length(vd + 0.01*nl);
+  float d0 = (0.6-d)/0.9;
+  float dm0 = 1.0-max(d0, 0.0);
+
+  float gl = 1.0-clamp(-0.3*d0, 0.0, 1.0);
+  float gla = pow(1.0-min(abs(d0), 1.0), 6.0);
+  float gl8 = pow(gl, 9.0);
+
+  float hole = 0.5*pow(dm0, 15.0) + 0.3*pow(dm0, 5.0);
+  float bh = (gla + 0.1*gl8 + 0.4*gl8*gl8) * hole;
+
+  float df = sin(3.0*a - 4.0*d + 10.0*pow(1.4-d, 2.0) + t);
+  df *= 0.9 + 1.0*sin(1.0*a + d + 2.0*t - 2.0*df);
+  bh *= 1.0 + pow(df, 2.0)*hole*max(1.0-bh, 0.0);
+
+  vec3 col = bh*4.0*mix(vec3(0.1, 0.1, 0.8), vec3(1.8, 0.1, 0.6) , min(bh, 1.0));
+  return vec4(col, hole);
 }
 
 nl_skycolor nlUnderwaterSkyColors(float rainFactor, vec3 FOG_COLOR) {
