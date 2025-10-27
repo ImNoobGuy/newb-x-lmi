@@ -12,7 +12,7 @@ void main() {
 
   vec4 color = a_color0;
   color.rgb *= 0.6 + 0.4*sin(2.0*pos);
-  color.rgb *= StarsColor.rgb;
+  color.rgb *= StarsColor.rgb*1.5;
 
   v_color0 = color;
   gl_Position = mul(u_viewProj, vec4(worldPos, 1.0));

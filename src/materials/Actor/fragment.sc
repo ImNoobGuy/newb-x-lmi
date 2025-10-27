@@ -56,7 +56,7 @@ void main() {
   #if defined(EMISSIVE) || defined(EMISSIVE_ONLY)
     light.rgb = max(light.rgb, 2.0*NL_GLOW_TEX*(1.0-albedo.a)); // glow effect
   #endif
-
+  
   albedo = applyLighting(albedo, light);
 
   #ifdef TRANSPARENT

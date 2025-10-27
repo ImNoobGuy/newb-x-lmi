@@ -15,6 +15,9 @@ $output v_color0
 uniform vec4 FogColor;
 uniform vec4 FogAndDistanceControl;
 uniform vec4 ViewPositionAndTime;
+uniform vec3 CameraPosition;
+uniform vec4 TimeOfDay;
+uniform vec4 Day;
 
 float fog_fade(vec3 wPos) {
   return clamp(2.0-length(wPos*vec3(0.005, 0.002, 0.005)), 0.0, 1.0);
@@ -30,7 +33,15 @@ void main() {
   float t = ViewPositionAndTime.w;
   float rain = detectRain(FogAndDistanceControl.xyz);
 
-  nl_skycolor skycol = nlOverworldSkyColors(rain, FogColor.rgb);
+  nl_environment env;
+  env.end = false;
+  env.nether = false;
+  env.underwater = false;
+  env.rainFactor = rain;
+  env.fogCol = FogColor.rgb;
+  env = calculateSunParams(env, TimeOfDay.x, Day.x);
+
+  nl_skycolor skycol = nlOverworldSkyColors(env);
   vec3 pos = a_position;
   vec3 worldPos;
 
@@ -39,7 +50,8 @@ void main() {
     vec4 color;
 
     #if NL_CLOUD_TYPE == 0
-      pos.y *= (NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS));
+      float thickness = NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS);
+      pos.y *= thickness;
       worldPos = mul(model, vec4(pos, 1.0)).xyz;
 
       color.rgb = skycol.zenith + skycol.horizonEdge;
@@ -60,6 +72,24 @@ void main() {
           color.a = 0.0;
         #endif
       }
+
+      float local_y = pos.y;
+      float norm_y = local_y / thickness;
+      float cloud_base_y = worldPos.y - local_y;
+      
+      #ifdef NL_CLOUD0_MULTILAYER
+        if (isL2) cloud_base_y += 64.0;
+      #endif
+      
+      float cloud_mid_y = cloud_base_y + thickness * 0.5;
+      float is_above = step(cloud_mid_y, CameraPosition.y);
+      float fade = (is_above > 0.5) ? smoothstep(0.0, 0.2, norm_y) : (1.0 - smoothstep(0.8, 1.0, norm_y));
+      color.a *= fade;
+      
+      vec3 viewDir = normalize(CameraPosition.xyz - worldPos);
+      float facing = abs(dot(viewDir, vec3(0.0, 1.0, 0.0)));
+      color.a *= smoothstep(0.1, 0.5, facing);
+      
     #else
       pos.xz = pos.xz - 32.0;
       pos.y *= 0.01;

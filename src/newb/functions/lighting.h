@@ -55,7 +55,7 @@ vec3 nlLighting(
   if (env.nether || env.end) {
     // nether & end lighting
 
-    light = env.end ? NL_END_AMBIENT : NL_NETHER_AMBIENT;
+    light = env.end ? vec3(0.3,0.3,0.3) : NL_NETHER_AMBIENT;
 
     light += skycol.horizon + torchLight*0.5;
   } else {
@@ -91,14 +91,20 @@ vec3 nlLighting(
 
     // torch light
     light += torchLight*(1.0-(max(shadow, 0.65*lit.y)*dayFactor*(1.0-0.3*env.rainFactor)));
+    
+    // rain terrain lighting
+    light *= mix(1.0,0.55,smoothstep(0.0,1.0,env.rainFactor));
   }
 
   // darken at crevices
-  light *= COLOR.g > 0.35 ? 1.0 : 0.8;
+  float col_max = max(COLOR.r, max(COLOR.g, COLOR.b));
+    if (col_max < 0.7) { 
+         light *= 0.35;
+     };
 
   // brighten tree leaves
   if (isTree) {
-    light *= 1.25;
+    light *= 2.25;
   }
 
   return light;
@@ -141,7 +147,7 @@ vec3 nlEntityLighting(nl_environment env, vec3 pos, vec4 normal, mat4 world, vec
   if (env.nether) {
     light *= tileLightCol.x*NL_NETHER_AMBIENT*0.5;
   } else if (env.end) {
-    light *= NL_END_AMBIENT;
+    light *= vec3(1.98,1.25,2.3);
   } else if (env.underwater) {
     light += NL_UNDERWATER_BRIGHTNESS;
     light *= mix(normalize(horizonEdgeCol),vec3(1.0,1.0,1.0),tileLightCol.x*0.5);
@@ -175,7 +181,7 @@ vec4 nlLavaNoise(vec3 tiledCpos, float t) {
   float n = sin(2.0*(p.x+p.y+p.z) + 1.7*sin(2.0*d + 4.0*(p.x-p.z)) + 4.0*t);
   n = 0.3*d*d +  0.7*n*n;
   n *= n;
-  return vec4(mix(vec3(0.7, 0.4, 0.0), vec3_splat(1.5), n),n);
+  return vec4(mix(vec3_splat(0.0), vec3_splat(1.5), n),n);
 }
 
 #endif

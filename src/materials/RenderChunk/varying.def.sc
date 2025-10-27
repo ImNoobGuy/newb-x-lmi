@@ -16,3 +16,6 @@ centroid vec2 v_texcoord0  : TEXCOORD0;
 vec2 v_lightmapUV : TEXCOORD1;
 vec3 v_position   : TEXCOORD2;
 vec4 v_extra      : TEXCOORD3;
+vec3 v_wPos       : TEXCOORD4;
+vec3 v_cPos       : TEXCOORD5;
+float v_isTree    : TEXCOORD6;

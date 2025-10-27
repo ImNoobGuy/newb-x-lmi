@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_wPos, v_cPos, v_isTree
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -75,7 +75,7 @@ void main() {
   #endif
 
   nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogAndDistanceControl.xyz);
-  nl_skycolor skycol = nlSkyColors(env, FogColor.rgb);
+  nl_skycolor skycol = nlSkyColors(env);
 
   // time
   highp float t = ViewPositionAndTime.w;
@@ -104,10 +104,10 @@ void main() {
   relativeDist += RenderChunkFogAlpha.x;
 
   vec4 fogColor;
-  fogColor.rgb = nlRenderSky(skycol, env, viewDir, FogColor.rgb, t);
-  fogColor.a = nlRenderFogFade(relativeDist, FogColor.rgb, FogAndDistanceControl.xy);
-  #ifdef NL_GODRAY
-    fogColor.a = mix(fogColor.a, 1.0, min(NL_GODRAY*nlRenderGodRayIntensity(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb), 1.0));
+  fogColor.rgb = nlRenderSky(skycol, env, viewDir, t, false);
+  fogColor.a = nlRenderFogFade(env, skycol, fogColor.rgb, relativeDist, FogColor.rgb, FogAndDistanceControl.xy, worldPos, vec3(0.0,0.0,0.0), t);
+  #ifdef NL_GODRAY 
+    fogColor.a = nlRenderGodRay(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb, fogColor.a);
   #endif
 
   if (env.nether) {
@@ -161,6 +161,7 @@ void main() {
     bool isb = bPos.y < 0.891 && bPos.y > 0.889;
     if (isc && isb && (uv1.x > 0.81 && uv1.x < 0.876) && a_texcoord0.y > 0.45) {
       vec4 lava = nlLavaNoise(tiledCpos, t);
+      pos.y += cos(length(abs(a_position.xyz - 8.0)*10.0)+ViewPositionAndTime.w)*0.03;
       #ifdef NL_LAVA_NOISE_BUMP
         worldPos.y += NL_LAVA_NOISE_BUMP*lava.a;
       #endif
@@ -175,6 +176,9 @@ void main() {
   v_color0 = color;
   v_color1 = a_color0;
   v_fog = fogColor;
+  v_wPos = worldPos;
+  v_cPos = cPos;
+  v_isTree = isTree ? 1.0 : 0.0;
 
   #else
 

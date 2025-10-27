@@ -32,6 +32,14 @@ void main() {
       discard;
     }
   #endif
+  
+  bool isGlowing = (v_color0.a <= 0.99);
+
+  if (!isGlowing) {
+    albedo.rgb *= albedo.rgb * v_light.rgb;
+  } else {
+    albedo.rgb *= 1.5;
+  }
 
   albedo.rgb *= albedo.rgb * v_light.rgb;
 

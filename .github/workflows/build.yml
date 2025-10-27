@@ -1,6 +1,8 @@
 name: build
 
 on:
+  pull_request:
+  push:
   workflow_dispatch:
     inputs:
       subversion:
@@ -10,7 +12,7 @@ on:
       platform:
         description: 'platform'
         required: true
-        default: 'Merged'
+        default: 'All'
         type: choice
         options:
         - Android
@@ -19,10 +21,13 @@ on:
         - Merged
         - All
 
+env:
+  SUBVERSION_OPT: ${{ inputs.subversion && format('-v {0}', inputs.subversion) || '' }}
+
 jobs:
   windows:
     runs-on: windows-2022
-    if:  ${{ (github.event.inputs.platform == 'Windows') || (github.event.inputs.platform == 'All') }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'Windows' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -37,14 +42,14 @@ jobs:
     - run: pip install -r requirements.txt
     - run: |
         .\build.bat setup
-        .\build.bat pack -p windows -v ${{ inputs.subversion }} --no-zip
+        .\build.bat pack -p windows ${{ env.SUBVERSION_OPT }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-windows
+        name: newb-x-lmi-windows
         path: ./build/pack-windows
   android:
     runs-on: ubuntu-latest
-    if:  ${{ (github.event.inputs.platform == 'Android') || (github.event.inputs.platform == 'All') }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'Android' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -59,14 +64,14 @@ jobs:
     - run: pip install -r requirements.txt
     - run: |
         ./build.sh setup
-        ./build.sh pack -p android -v ${{ inputs.subversion }} --no-zip
+        ./build.sh pack -p android ${{ env.SUBVERSION_OPT }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-android
+        name: newb-x-lmi-android
         path: ./build/pack-android
   ios:
     runs-on: ubuntu-latest
-    if:  ${{ (github.event.inputs.platform == 'IOS') || (github.event.inputs.platform == 'All') }}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'IOS' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -83,14 +88,14 @@ jobs:
     - run: pip install -r requirements.txt
     - run: |
         ./build.sh setup
-        ./build.sh pack -p ios -v ${{ inputs.subversion }} --no-zip
+        ./build.sh pack -p ios ${{ env.SUBVERSION_OPT }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-ios
+        name: newb-x-lmi-ios
         path: ./build/pack-ios
   merged:
     runs-on: windows-2022
-    if:  ${{ (github.event.inputs.platform == 'Merged') || (github.event.inputs.platform == 'All')}}
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.platform == 'Merged' || inputs.platform == 'All' }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -105,8 +110,8 @@ jobs:
     - run: pip install -r requirements.txt
     - run: |
         .\build.bat setup
-        .\build.bat pack -p merged -v ${{ inputs.subversion }} --no-zip
+        .\build.bat pack -p merged ${{ env.SUBVERSION_OPT }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-merged
+        name: newb-x-lmi-merged
         path: ./build/pack-merged
