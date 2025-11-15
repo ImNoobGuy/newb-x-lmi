@@ -14,8 +14,10 @@ uniform vec4 FogColor;
 uniform vec4 DimensionID;
 uniform vec4 TimeOfDay;
 uniform vec4 Day;
+uniform vec4 CameraPosition;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
+SAMPLER2D_AUTOREG(s_LightMapTexture);
 
 void main() {
   #ifdef INSTANCING
@@ -66,12 +68,18 @@ void main() {
 
   bool isColored = color.r != color.g || color.r != color.b;
   float shade = isColored ? color.g*1.5 : color.g;
+  
+  vec4 diffuse = texture2DLod(s_MatTexture, a_texcoord0, 0.0);
+  bool isCherry = false;
 
-  // tree leaves detection
   #if defined(ALPHA_TEST) && !defined(RENDER_AS_BILLBOARDS)
-    bool isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || color.a == 0.0;
-  #else
-    bool isTree = false;
+      bool isCherryTex = (diffuse.r > diffuse.g && diffuse.b > diffuse.g && diffuse.r > diffuse.b);
+      isCherry = (isCherryTex || color.a == 0.0) && (bPos.x + bPos.y + bPos.z < 0.001);
+  #endif
+
+  bool isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || isCherry;
+  #if defined(ALPHA_TEST)
+    isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || isCherry;
   #endif
 
   nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogAndDistanceControl.xyz);
@@ -94,17 +102,34 @@ void main() {
   #endif
 
   vec3 torchColor; // modified by nl_lighting
-  vec3 light = nlLighting(skycol, env, worldPos, torchColor, a_color0.rgb, FogColor.rgb, uv1, lit, isTree, shade, t);
+  vec3 light = nlLighting(s_LightMapTexture, skycol, env, worldPos, torchColor, a_color0.rgb, uv1, lit, isTree, shade, t, FogAndDistanceControl.z, TimeOfDay.x, CameraPosition.xyz);
 
   #if defined(ALPHA_TEST) && (defined(NL_PLANTS_WAVE) || defined(NL_LANTERN_WAVE)) && !defined(RENDER_AS_BILLBOARDS)
     nlWave(worldPos, light, env.rainFactor, uv1, lit, a_texcoord0, bPos, a_color0, cPos, tiledCpos, t, s_MatTexture, isColored, camDis, isTree);
   #endif
+  
+  if (isCherry) {
+      float windStrength = 1.0 - saturate(length(cPos.xz) * 0.01); 
+      float rainFactor = saturate(FogColor.b * 1.5); 
+
+      float wave = 0.05 * windStrength;
+      wave *= 0.5;
+
+      float phaseDiff = dot(cPos, vec3_splat(0.785398)) + fastRand(tiledCpos.xz + tiledCpos.y);
+
+      wave *= 1.0 + mix(
+        sin(t * 2.8 + phaseDiff),
+        sin(t * 4.2 + phaseDiff),
+        rainFactor
+    );
+    worldPos.xyz -= vec3(wave, wave * wave * 0.5, wave);
+  }
 
   // loading chunks
   relativeDist += RenderChunkFogAlpha.x;
 
   vec4 fogColor;
-  fogColor.rgb = nlRenderSky(skycol, env, viewDir, t, false);
+  fogColor.rgb = nlRenderSky(skycol, env, viewDir, t, true);
   fogColor.a = nlRenderFogFade(env, skycol, fogColor.rgb, relativeDist, FogColor.rgb, FogAndDistanceControl.xy, worldPos, vec3(0.0,0.0,0.0), t);
   #ifdef NL_GODRAY 
     fogColor.a = nlRenderGodRay(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb, fogColor.a);
@@ -128,12 +153,12 @@ void main() {
     color.a = mix(color.a, 1.0, 0.5*clamp(relativeDist, 0.0, 1.0));
     if (a_color0.b > 0.3 && a_color0.a < 0.95) {
       water = 1.0;
-      refl = nlWater(skycol, env, worldPos, color, a_color0, viewDir, light, cPos, tiledCpos, bPos.y, FogColor.rgb, lit, t, camDis, torchColor);
+      refl = nlWater(color, worldPos, skycol, env, a_color0, viewDir, cPos, tiledCpos, CameraPosition.xyz, light, torchColor, lit, bPos.y, camDis, t);
     } else {
-      refl = nlRefl(skycol, env, color, lit, tiledCpos, camDis, worldPos, viewDir, torchColor, FogColor.rgb, FogAndDistanceControl.z, t);
+      refl = nlRefl(color, skycol, env, viewDir, worldPos, tiledCpos, CameraPosition.xyz, torchColor, lit, camDis, FogAndDistanceControl.z, t);
     }
   #else
-    refl = nlRefl(skycol, env, color, lit, tiledCpos, camDis, worldPos, viewDir, torchColor, FogColor.rgb, FogAndDistanceControl.z, t);
+    refl = nlRefl(color, skycol, env, viewDir, worldPos, tiledCpos, CameraPosition.xyz, torchColor, lit, camDis, FogAndDistanceControl.z, t);
   #endif
 
   vec4 pos = mul(u_viewProj, vec4(worldPos, 1.0));
@@ -161,7 +186,6 @@ void main() {
     bool isb = bPos.y < 0.891 && bPos.y > 0.889;
     if (isc && isb && (uv1.x > 0.81 && uv1.x < 0.876) && a_texcoord0.y > 0.45) {
       vec4 lava = nlLavaNoise(tiledCpos, t);
-      pos.y += cos(length(abs(a_position.xyz - 8.0)*10.0)+ViewPositionAndTime.w)*0.03;
       #ifdef NL_LAVA_NOISE_BUMP
         worldPos.y += NL_LAVA_NOISE_BUMP*lava.a;
       #endif

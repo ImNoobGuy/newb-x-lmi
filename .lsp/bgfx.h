@@ -161,6 +161,7 @@ EMPTY_STRUCT(sampler2D)
 vec4 texture2D(sampler2D, vec2);
 vec4 texture2DLod(sampler2D, vec2, float);
 ivec2 textureSize(sampler2D, int);
+vec4 texelFetch(sampler2D, ivec2, int);
 
 VEC_OPS(vec2)
 VEC_OPS(vec3)

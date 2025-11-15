@@ -29,45 +29,6 @@ vec3 getEndHorizonCol() {
   return NL_END_HORIZON_COL;
 }
 
-// values used for getting sky colors
-vec3 getSkyFactors(vec3 FOG_COLOR) {
-  vec3 factors = vec3(
-    max(FOG_COLOR.r*0.6, max(FOG_COLOR.g, FOG_COLOR.b)), // intensity val
-    1.5*max(FOG_COLOR.r-FOG_COLOR.b, 0.0), // viewing sun
-    min(FOG_COLOR.g, 0.26) // rain brightness
-  );
-
-  factors.z *= factors.z;
-
-  return factors;
-}
-
-vec3 getZenithCol(float rainFactor, vec3 FOG_COLOR, vec3 fs) {
-  vec3 zenithCol = NL_NIGHT_ZENITH_COL*(1.0-FOG_COLOR.b);
-  zenithCol += NL_DAWN_ZENITH_COL*((0.7*fs.x*fs.x) + (0.4*fs.x) + fs.y);
-  zenithCol = mix(zenithCol, (0.7*fs.x*fs.x + 0.3*fs.x)*NL_DAY_ZENITH_COL, fs.x*fs.x);
-  zenithCol = mix(zenithCol*(1.0+0.5*rainFactor), NL_RAIN_ZENITH_COL*fs.z*13.2, rainFactor);
-
-  return zenithCol;
-}
-
-vec3 getHorizonCol(float rainFactor, vec3 FOG_COLOR, vec3 fs) {
-  vec3 horizonCol = NL_NIGHT_HORIZON_COL*(1.0-FOG_COLOR.b); 
-  horizonCol += NL_DAWN_HORIZON_COL*(((0.7*fs.x*fs.x) + (0.3*fs.x) + fs.y)*1.9); 
-  horizonCol = mix(horizonCol, 2.0*fs.x*NL_DAY_HORIZON_COL, fs.x*fs.x);
-  horizonCol = mix(horizonCol, NL_RAIN_HORIZON_COL*fs.z*19.6, rainFactor);
-
-  return horizonCol;
-}
-
-// tinting on horizon col
-vec3 getHorizonEdgeCol(vec3 horizonCol, float rainFactor, vec3 FOG_COLOR) {
-  float val = 2.1*(1.1-FOG_COLOR.b)*FOG_COLOR.g*(1.0-rainFactor);
-  horizonCol *= vec3_splat(1.0-val) + NL_DAWN_EDGE_COL*val;
-
-  return horizonCol;
-}
-
 nl_skycolor nlEndSkyColors(nl_environment env) {
   nl_skycolor s;
   s.zenith = getEndZenithCol();
@@ -118,21 +79,20 @@ nl_skycolor nlSkyColors(nl_environment env) {
 vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bool isSkyPlane) {
   float avy = abs(viewDir.y);
   float mask = 0.5 + (0.5*viewDir.y/(0.4 + avy));
-
-  vec2 g = 0.5 - 0.5*vec2(dot(env.sunDir, viewDir), dot(env.moonDir, viewDir));
-  g = 1.0-mix(sqrt(g), g, env.rainFactor);
-  vec2 g2 = g*g;
+  
+  vec2 g = clamp(0.5 - 0.5*vec2(dot(env.sunDir, viewDir), dot(env.moonDir, viewDir)), 0.0, 1.0);
+  vec2 g1 = 1.0-mix(sqrt(g), g, env.rainFactor);
+  vec2 g2 = g1*g1;
   vec2 g4 = g2*g2;
   vec2 g8 = g4*g4;
-  float mg8 = (g8.x+g8.y)*mask*(1.0-0.5*env.rainFactor);
-  //mg8 *= 1.0 - 0.5*sunDir.y*sunDir.y;
-
+  float mg8 = (g8.x+g8.y)*mask*(1.0-0.9*env.rainFactor);
+  
   float vh = 1.0 - viewDir.y*viewDir.y;
   float vh2 = vh*vh;
   vh2 = mix(vh2, mix(1.0, vh2*vh2, NL_SKY_VOID_FACTOR), step(viewDir.y, 0.0));
   vh2 = mix(vh2, 1.0, mg8);
   float vh4 = vh2*vh2;
-
+  
   float gradient1 = vh4*vh4;
   float gradient2 = 0.8*gradient1 + 0.2*vh2;
   gradient1 *= gradient1;
@@ -144,15 +104,24 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
   vec3 sky = mix(skyCol.horizon, skyCol.horizonEdge, gradient1*df*df);
   sky = mix(skyCol.zenith, sky, gradient2*df);
 
-  sky *= (1.0 + 2.0*gradient2 + (2.0*mg8 + 7.0*mg8*mg8)*mask)*mix(1.0, mask, NL_SKY_VOID_DARKNESS);
-  
+  sky *= 0.5+0.5*gradient2;
+  sky *= (1.0 + (2.0*mg8 + 7.0*mg8*mg8)*mask)*mix(1.0, mask, NL_SKY_VOID_DARKNESS);
+
   if (!isSkyPlane) {
     float source = max(0.0, (mg8-0.22)/0.78);
     source *= source;
     source *= source;
     sky *= 1.0 + 15.0*source*(1.0-env.rainFactor);
   }
-
+  
+  #ifdef NL_RAINBOW
+    float rainbowFade = 0.5 + 0.5*viewDir.y;
+    rainbowFade *= rainbowFade;
+    rainbowFade *= mix(NL_RAINBOW_CLEAR, NL_RAINBOW_RAIN, env.rainFactor);
+    rainbowFade *= 0.5+0.5*env.dayFactor;
+    sky += spectrum(24.2*(0.85-g.x))*rainbowFade*skyCol.horizon;
+  #endif
+  
   return sky;
 }
 
@@ -205,9 +174,6 @@ vec3 nlRenderSky(nl_skycolor skycol, nl_environment env, vec3 viewDir, float t, 
     sky = renderEndSky(skycol.horizon, skycol.zenith, viewDir, t);
   } else {
     sky = renderOverworldSky(skycol, env, viewDir, isSkyPlane);
-    #ifdef NL_RAINBOW
-      sky += mix(NL_RAINBOW_CLEAR, NL_RAINBOW_RAIN, env.rainFactor)*spectrum((viewDir.z+0.6)*8.0)*max(viewDir.y, 0.0)*env.fogCol.g;
-    #endif
     #ifdef NL_UNDERWATER_STREAKS
       // if (env.underwater) {
       //   float a = atan2(viewDir.x, viewDir.z);

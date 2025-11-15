@@ -51,44 +51,72 @@ void main() {
 
     #if NL_CLOUD_TYPE == 0
       float thickness = NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS);
-      pos.y *= thickness;
-      worldPos = mul(model, vec4(pos, 1.0)).xyz;
-
-      color.rgb = skycol.zenith + skycol.horizonEdge;
-      color.rgb += dot(color.rgb, vec3(0.3,0.4,0.3))*a_position.y;
-      color.rgb *= 1.0 - 0.8*rain;
-      color.rgb = colorCorrection(color.rgb);
-      color.a = NL_CLOUD0_OPACITY * fog_fade(worldPos.xyz);
-
       // clouds.png has two non-overlaping layers:
       // r=unused, g=layers, b=reference, a=unused
       // g=0 (layer 0), g=1 (layer 1)
       bool isL2 = a_color0.g > 0.5 * a_color0.b;
-      if (isL2) {
-        #ifdef NL_CLOUD0_MULTILAYER
-          worldPos.y += 64.0;
+      
+      if (!isL2) {
+        // NORMAL CLOUDS LAYER
+        pos.y *= thickness;
+        worldPos = mul(model, vec4(pos, 1.0)).xyz;
+
+        // FIX: Use more balanced cloud colors (closer to original white clouds)
+        // Reduce the zenith color influence and make clouds whiter
+        vec3 cloudColor = mix(skycol.zenith, skycol.horizonEdge, 0.7);
+        cloudColor = mix(cloudColor, vec3(1.0, 1.0, 1.0), 0.3); // Blend towards white
+        color.rgb = cloudColor;
+        
+        // Keep some vertical variation but reduce intensity
+        color.rgb += dot(color.rgb, vec3(0.2,0.3,0.2)) * a_position.y;
+        color.rgb *= 1.0 - 0.8*rain;
+        color.rgb = colorCorrection(color.rgb);
+        color.a = NL_CLOUD0_OPACITY * fog_fade(worldPos.xyz);
+      
+        float local_y = pos.y;
+        float norm_y = local_y / thickness;
+        float cloud_base_y = worldPos.y - local_y;
+        float cloud_mid_y = cloud_base_y + thickness * 0.5;
+        float is_above = step(cloud_mid_y, CameraPosition.y);
+        float fade = (is_above > 0.5) ? smoothstep(0.0, 0.2, norm_y) : (1.0 - smoothstep(0.8, 1.0, norm_y));
+        color.a *= fade;
+        
+        vec3 viewDir = normalize(CameraPosition.xyz - worldPos);
+        float facing = abs(dot(viewDir, vec3(0.0, 1.0, 0.0)));
+        color.a *= smoothstep(0.1, 0.5, facing);
+        
+      } else {
+        // AURORA LAYER
+        #ifdef NL_AURORA
+          // First calculate the base world position like normal clouds
+          pos.y *= thickness;
+          worldPos = mul(model, vec4(pos, 1.0)).xyz;
+          
+          // Then apply aurora animations and positioning
+          worldPos.xyz += 4.0*sin(0.1*worldPos.zxx + vec3(0.2,0.5,0.3)*t);
+          worldPos.y += 24.0*a_position.y*(1.0 + sin(0.1*(worldPos.z+worldPos.x) + 0.5*t));
+          worldPos.y += NL_CLOUD0_THICKNESS + 20.0;
+          
+          vec4 aurora = renderAurora(worldPos, t, rain, FogColor.rgb);
+          
+          // FIX: Increase aurora intensity by multiplying and use brighter colors
+          float auroraIntensity = 2.0; // Adjust this value (1.5-3.0) for desired intensity
+          color.rgb = skycol.zenith + 0.8*skycol.horizonEdge;
+          color.rgb += aurora.rgb * auroraIntensity;
+          
+          // Make aurora colors more vibrant
+          color.rgb = mix(color.rgb, aurora.rgb * 1.5, 0.3);
+          
+          color.a = (a_position.y < 0.5 && a_color0.b > 0.9) ? aurora.a : 0.0;
+          color.a *= fog_fade(worldPos.xyz);
+          
+          // Optional: Boost aurora alpha for more visibility
+          color.a *= 1.5;
         #else
           worldPos = vec3(0.0,0.0,0.0);
           color.a = 0.0;
         #endif
       }
-
-      float local_y = pos.y;
-      float norm_y = local_y / thickness;
-      float cloud_base_y = worldPos.y - local_y;
-      
-      #ifdef NL_CLOUD0_MULTILAYER
-        if (isL2) cloud_base_y += 64.0;
-      #endif
-      
-      float cloud_mid_y = cloud_base_y + thickness * 0.5;
-      float is_above = step(cloud_mid_y, CameraPosition.y);
-      float fade = (is_above > 0.5) ? smoothstep(0.0, 0.2, norm_y) : (1.0 - smoothstep(0.8, 1.0, norm_y));
-      color.a *= fade;
-      
-      vec3 viewDir = normalize(CameraPosition.xyz - worldPos);
-      float facing = abs(dot(viewDir, vec3(0.0, 1.0, 0.0)));
-      color.a *= smoothstep(0.1, 0.5, facing);
       
     #else
       pos.xz = pos.xz - 32.0;
@@ -107,7 +135,10 @@ void main() {
         float len = length(worldPos.xz)*0.01;
         worldPos.y -= len*len*clamp(0.2*worldPos.y, -1.0, 1.0);
 
-        color = renderCloudsSimple(skycol, worldPos.xyz, t, rain);
+        vec3 cloudPos = worldPos;
+        cloudPos.xz += CameraPosition.xz;
+
+        color = renderCloudsSimple(skycol, cloudPos, t, rain);
 
         // cloud depth
         worldPos.y -= NL_CLOUD1_DEPTH*color.a*3.3;
@@ -115,7 +146,7 @@ void main() {
         color.a *= NL_CLOUD1_OPACITY;
 
         #ifdef NL_AURORA
-          color += renderAurora(worldPos, t, rain, FogColor.rgb)*(1.0-color.a);
+          color += renderAurora(cloudPos, t, rain, FogColor.rgb)*(1.0-color.a);
         #endif
 
         color.a *= fade;
