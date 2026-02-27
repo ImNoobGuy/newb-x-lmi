@@ -318,7 +318,7 @@ vec4 renderVortex(vec3 vdir, float t) {
 
   vec3 vd = vr-vec3(0.0, -1.0, 0.0);
   float nl = sin(1.0*vd.x + t)*sin(15.0*vd.y - t)*sin(15.0*vd.z + t);
-  float a = atan(vd.x, vd.z);
+  float a = atan2(vd.x, vd.z);
 
   float d = 1.8*length(vd + 0.01*nl);
   float d0 = (0.6-d)/0.9;
