@@ -10,20 +10,18 @@ SAMPLER2D_AUTOREG(s_LightMapTexture);
 uniform vec4 SunDirection;
 uniform vec4 DimensionID;
 
-vec4 sunDir = SunDirection;
-
 float sideShadow(vec3 normal, float g) {
     float ao = mix(0.3, 1.0, smoothstep(0.2, 0.9, g));
     float side = 1.0;
     float shadowStrength = 0.4;
 
     if (DimensionID.x < 0.5) {
-        vec3 lightDir = sunDir.xyz;
+        vec3 lightDir = SunDirection.xyz;
         float sunDot = dot(normal, lightDir);
         float intensity = smoothstep(0.0, 0.4, -sunDot);
         side = mix(1.0, shadowStrength, intensity);
 
-        float Fade = clamp(sunDir.y*0.5+0.5, 0.0, 1.0);
+        float Fade = clamp(SunDirection.y*0.5+0.5, 0.0, 1.0);
         side = mix(1.0, side, Fade);
     } else {
         vec3 fixedDir = normalize(vec3(0.5, 0.5, 0.0));
