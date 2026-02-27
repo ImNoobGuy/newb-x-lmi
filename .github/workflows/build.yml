@@ -1,6 +1,8 @@
 name: build
 
 on:
+  push:
+    branches: [ "**" ]
   workflow_dispatch:
     inputs:
       subversion:
@@ -22,7 +24,7 @@ on:
 jobs:
   windows:
     runs-on: windows-2022
-    if:  ${{ (github.event.inputs.platform == 'Windows') || (github.event.inputs.platform == 'All') }}
+    if: github.event_name == 'push' || (github.event.inputs.platform == 'Windows' || github.event.inputs.platform == 'All')
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -35,16 +37,27 @@ jobs:
         path: |
           ${{ github.workspace }}/tool/data
     - run: pip install -r requirements.txt
+    - name: Set version
+      id: vars
+      run: |
+        if ("${{ github.event_name }}" -eq "push") {
+          $short = git rev-parse --short HEAD
+          echo "version=$short" >> $env:GITHUB_OUTPUT
+        } else {
+          echo "version=${{ inputs.subversion }}" >> $env:GITHUB_OUTPUT
+        }
+      shell: pwsh
     - run: |
         .\build.bat setup
-        .\build.bat pack -p windows -v ${{ inputs.subversion }} --no-zip
+        .\build.bat pack -p windows -v ${{ steps.vars.outputs.version }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-windows
+        name: newb-x-lmi-windows-${{ steps.vars.outputs.version }}
         path: ./build/pack-windows
+
   android:
     runs-on: ubuntu-latest
-    if:  ${{ (github.event.inputs.platform == 'Android') || (github.event.inputs.platform == 'All') }}
+    if: github.event_name == 'push' || (github.event.inputs.platform == 'Android' || github.event.inputs.platform == 'All')
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -57,16 +70,26 @@ jobs:
         path: |
           ${{ github.workspace }}/tool/data
     - run: pip install -r requirements.txt
+    - name: Set version
+      id: vars
+      run: |
+        if [ "${{ github.event_name }}" = "push" ]; then
+          echo "version=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        else
+          echo "version=${{ inputs.subversion }}" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
     - run: |
         ./build.sh setup
-        ./build.sh pack -p android -v ${{ inputs.subversion }} --no-zip
+        ./build.sh pack -p android -v ${{ steps.vars.outputs.version }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-android
+        name: newb-x-lmi-android-${{ steps.vars.outputs.version }}
         path: ./build/pack-android
+
   ios:
     runs-on: ubuntu-latest
-    if:  ${{ (github.event.inputs.platform == 'IOS') || (github.event.inputs.platform == 'All') }}
+    if: github.event_name == 'push' || (github.event.inputs.platform == 'IOS' || github.event.inputs.platform == 'All')
     steps:
     - uses: actions/checkout@v4
       with:
@@ -81,16 +104,26 @@ jobs:
         path: |
           ${{ github.workspace }}/tool/data
     - run: pip install -r requirements.txt
+    - name: Set version
+      id: vars
+      run: |
+        if [ "${{ github.event_name }}" = "push" ]; then
+          echo "version=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        else
+          echo "version=${{ inputs.subversion }}" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
     - run: |
         ./build.sh setup
-        ./build.sh pack -p ios -v ${{ inputs.subversion }} --no-zip
+        ./build.sh pack -p ios -v ${{ steps.vars.outputs.version }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-ios
+        name: newb-x-lmi-ios-${{ steps.vars.outputs.version }}
         path: ./build/pack-ios
+
   merged:
     runs-on: windows-2022
-    if:  ${{ (github.event.inputs.platform == 'Merged') || (github.event.inputs.platform == 'All')}}
+    if: github.event_name == 'push' || (github.event.inputs.platform == 'Merged' || github.event.inputs.platform == 'All')
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
@@ -103,10 +136,20 @@ jobs:
         path: |
           ${{ github.workspace }}/tool/data
     - run: pip install -r requirements.txt
+    - name: Set version
+      id: vars
+      run: |
+        if ("${{ github.event_name }}" -eq "push") {
+          $short = git rev-parse --short HEAD
+          echo "version=$short" >> $env:GITHUB_OUTPUT
+        } else {
+          echo "version=${{ inputs.subversion }}" >> $env:GITHUB_OUTPUT
+        }
+      shell: pwsh
     - run: |
         .\build.bat setup
-        .\build.bat pack -p merged -v ${{ inputs.subversion }} --no-zip
+        .\build.bat pack -p merged -v ${{ steps.vars.outputs.version }} --no-zip
     - uses: actions/upload-artifact@v4
       with:
-        name: newb-x-merged
+        name: newb-x-lmi-merged-${{ steps.vars.outputs.version }}
         path: ./build/pack-merged

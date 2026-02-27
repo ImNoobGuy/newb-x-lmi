@@ -11,7 +11,6 @@ $output v_color0
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
 
-// uniform vec4 CloudColor;
 uniform vec4 FogColor;
 uniform vec4 FogAndDistanceControl;
 uniform vec4 ViewPositionAndTime;
@@ -20,7 +19,7 @@ uniform vec4 CameraPosition;
 uniform vec4 Day;
 
 float fog_fade(vec3 wPos) {
-  return clamp(2.0-length(wPos*vec3(0.005, 0.002, 0.005)), 0.0, 1.0);
+  return clamp(2.0 - length(wPos * vec3(0.005, 0.002, 0.005)), 0.0, 1.0);
 }
 
 void main() {
@@ -46,28 +45,40 @@ void main() {
   vec3 worldPos;
 
   #if NL_CLOUD_TYPE <= 2
-
     vec4 color;
-
     #if NL_CLOUD_TYPE == 0
-      pos.y *= (NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS));
+      float thickness = (NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS));
+      pos.y *= thickness;
       worldPos = mul(model, vec4(pos, 1.0)).xyz;
 
       color.rgb = skycol.zenith + skycol.horizonEdge;
       color.rgb += dot(color.rgb, vec3(0.3,0.4,0.3))*a_position.y;
       color.rgb *= 1.0 - 0.8*rain;
       color.rgb = colorCorrection(color.rgb);
-      color.a = NL_CLOUD0_OPACITY * fog_fade(worldPos.xyz);
+      cloudFade = mix(1.0,0.0, a_position.y);
+      color.a = NL_CLOUD0_OPACITY*cloudFade*fog_fade(worldPos.xyz);
 
       // clouds.png has two non-overlaping layers:
       // r=unused, g=layers, b=reference, a=unused
       // g=0 (layer 0), g=1 (layer 1)
       bool isL2 = a_color0.g > 0.5 * a_color0.b;
       if (isL2) {
-        #ifdef NL_CLOUD0_MULTILAYER
-          worldPos.y += 64.0;
+        #ifdef NL_AURORA
+          worldPos.xyz += 4.0 * sin(0.1 * worldPos.zxx + vec3(0.2, 0.5, 0.3) * t);
+          worldPos.y += 24.0 * a_position.y * (1.0 + sin(0.1 * (worldPos.z + worldPos.x) + 0.5 * t));
+          worldPos.y += thickness + 20.0;
+
+          vec4 aurora = renderAurora(worldPos, t, rain, FogColor.rgb);
+
+          float auroraIntensity = 0.8;
+          color.rgb = skycol.zenith + 0.8 * skycol.horizonEdge;
+          color.rgb += aurora.rgb * auroraIntensity;
+          color.rgb = mix(color.rgb, aurora.rgb * 1.5, 0.3);
+          color.a = (a_position.y < 0.5 && a_color0.b > 0.9) ? aurora.a : 0.0;
+          color.a *= fog_fade(worldPos.xyz);
+          color.a *= 1.5;
         #else
-          worldPos = vec3(0.0,0.0,0.0);
+          worldPos = vec3(0.0, 0.0, 0.0);
           color.a = 0.0;
         #endif
       }

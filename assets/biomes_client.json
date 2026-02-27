@@ -8,9 +8,6 @@
     },
     "swampland_mutated": {
       "water_surface_transparency": 0.94
-    },
-    "the_end": {
-      "fog_identifier": "newb:fog_the_end"
     }
   }
 }

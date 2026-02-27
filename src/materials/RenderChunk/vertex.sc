@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_isCross
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -15,6 +15,7 @@ uniform vec4 DimensionID;
 uniform vec4 TimeOfDay;
 uniform vec4 Day;
 uniform vec4 CameraPosition;
+uniform vec4 SunDirection;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_LightMapTexture);
@@ -34,7 +35,9 @@ void main() {
     worldPos.y -= NL_CHUNK_LOAD_ANIM*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x;
   #endif
 
+  float isCross = 0.0;
   #ifdef RENDER_AS_BILLBOARDS
+    isCross = 1.0;
     worldPos += vec3(0.5,0.5,0.5);
 
     vec3 modelCamPos = ViewPositionAndTime.xyz - worldPos;
@@ -72,12 +75,19 @@ void main() {
   float shade = isColored ? color.g*1.5 : color.g;
 
   // tree leaves detection
+  vec4 diffuse = texture2DLod(s_MatTexture, a_texcoord0, 0.0);
+  bool isCherry = false;
+
   #if defined(ALPHA_TEST) && !defined(RENDER_AS_BILLBOARDS)
-    bool isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || color.a == 0.0;
-  #else
-    bool isTree = false;
+      bool isCherryTex = (diffuse.r > diffuse.g && diffuse.b > diffuse.g && diffuse.r > diffuse.b);
+      isCherry = (isCherryTex || color.a == 0.0) && (bPos.x + bPos.y + bPos.z < 0.001);
   #endif
 
+  bool isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || isCherry;
+  #if defined(ALPHA_TEST)
+    isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || isCherry;
+  #endif
+  
   nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogAndDistanceControl.xyz);
   nl_skycolor skycol = nlSkyColors(env);
 
@@ -103,6 +113,24 @@ void main() {
   #if defined(ALPHA_TEST) && (defined(NL_PLANTS_WAVE) || defined(NL_LANTERN_WAVE)) && !defined(RENDER_AS_BILLBOARDS)
     nlWave(worldPos, light, env.rainFactor, uv1, lit, a_texcoord0, bPos, a_color0, cPos, tiledCpos, t, s_MatTexture, isColored, camDis, isTree);
   #endif
+  
+  if (isCherry) {
+      float windStrength = 1.0 - saturate(length(cPos.xz) * 0.01); 
+      float rainFactor = saturate(FogColor.b * 1.5); 
+
+      float wave = 0.05 * windStrength;
+      wave *= 0.5;
+
+      float phaseDiff = dot(cPos, vec3_splat(0.785398)) + fastRand(tiledCpos.xz + tiledCpos.y);
+
+      wave *= 1.0 + mix(
+          sin(t * 2.8 + phaseDiff),
+          sin(t * 4.2 + phaseDiff),
+          rainFactor
+      );
+
+      worldPos.xyz -= vec3(wave, wave * wave * 0.5, wave);
+  }
 
   // loading chunks
   relativeDist += RenderChunkFogAlpha.x;
@@ -165,6 +193,7 @@ void main() {
     bool isb = bPos.y < 0.891 && bPos.y > 0.889;
     if (isc && isb && (uv1.x > 0.81 && uv1.x < 0.876) && a_texcoord0.y > 0.45) {
       vec4 lava = nlLavaNoise(tiledCpos, t);
+      pos.y += cos(length(abs(a_position.xyz - 8.0) * 2.0) + ViewPositionAndTime.w * 0.5) * 0.05;
       #ifdef NL_LAVA_NOISE_BUMP
         worldPos.y += NL_LAVA_NOISE_BUMP*lava.a;
       #endif
@@ -179,6 +208,9 @@ void main() {
   v_color0 = color;
   v_color1 = a_color0;
   v_fog = fogColor;
+  v_isTree = isTree ? 1.0 : 0.0;
+  v_wPos = worldPos;
+  v_isCross = isCross;
 
   #else
 

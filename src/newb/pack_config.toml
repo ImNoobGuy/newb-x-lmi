@@ -29,14 +29,14 @@ credits = '''
 # right-most subpack is enabled by default
 
 [[subpack]]
-define = "ROUNDED_CLOUDS"
+define = "SOFT_CLOUDS"
 materials = ["Clouds"]
 description = '''
-Rounded Clouds
+Soft Clouds
 '''
 
 [[subpack]]
-define = "BOX_CLOUDS"
+define = "VANILLA_CLOUDS"
 materials = ["Clouds", "RenderChunk"]
 description = '''
 Box Clouds
