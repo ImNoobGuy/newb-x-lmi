@@ -138,7 +138,7 @@ float EndHorizonRay(float a, float t, vec3 v, float ra, float tm){
 
 vec3 renderEndSky(vec3 horizonCol, vec3 zenithCol, vec3 viewDir, float t) {
   t *= 0.15;
-  float a = atan(viewDir.x, viewDir.z);
+  float a = atan2(viewDir.x, viewDir.z);
   vec3 v = viewDir;
   v.y = smoothstep(0.0, 1.9,abs(v.y));
 
