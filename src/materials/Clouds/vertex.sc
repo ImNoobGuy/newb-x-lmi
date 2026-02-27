@@ -55,7 +55,7 @@ void main() {
       color.rgb += dot(color.rgb, vec3(0.3,0.4,0.3))*a_position.y;
       color.rgb *= 1.0 - 0.8*rain;
       color.rgb = colorCorrection(color.rgb);
-      vec3 cloudFade = mix(1.0,0.0, a_position.y);
+      float cloudFade = mix(1.0,0.0, a_position.y);
       color.a = NL_CLOUD0_OPACITY*cloudFade*fog_fade(worldPos.xyz);
 
       // clouds.png has two non-overlaping layers:
