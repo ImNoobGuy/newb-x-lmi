@@ -32,9 +32,6 @@ void main() {
       discard;
     }
   #endif
-  
-  vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
-  albedo.rgb += glow;
 
   albedo.rgb *= albedo.rgb * v_light.rgb;
 
