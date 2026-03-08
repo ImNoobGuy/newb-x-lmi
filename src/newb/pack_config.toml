@@ -29,27 +29,6 @@ credits = '''
 # right-most subpack is enabled by default
 
 [[subpack]]
-define = "SOFT_CLOUDS"
-materials = ["Clouds"]
-description = '''
-Soft Clouds
-'''
-
-[[subpack]]
-define = "VANILLA_CLOUDS"
-materials = ["Clouds", "RenderChunk"]
-description = '''
-Box Clouds
-'''
-
-[[subpack]]
-define = "CHUNK_ANIM"
-materials = ["RenderChunk"]
-description = '''
-Chunk loading animation
-'''
-
-[[subpack]]
 define = "NO_WAVE_NO_FOG"
 materials = ["RenderChunk"]
 description = '''
@@ -70,12 +49,61 @@ description = '''
 No wave effects
 '''
 
-#[[subpack]]
-#define = "LITE"
-#materials = ["Sky", "RenderChunk", "Actor", "ActorGlint", "EndSky", "Clouds", "SunMoon", "Weather", "ItemInHandTextured", "ItemInHandColor", "ItemInHandColorGlint", "Stars"]
-#description = '''
-#Many effects disabled. A bit lighter!
-#'''
+[[subpack]]
+define = "NO_SHOOTING_STARS"
+materials = ["Sky"]
+description = '''
+Will Disable The Shooting Stars if you don't like it :)
+'''
+
+[[subpack]]
+define = "RAINBOW"
+materials = ["Sky"]
+description = '''
+Rainbow!
+'''
+
+[[subpack]]
+define = "GALAXY"
+materials = ["Sky"]
+description = '''
+Galaxy Skies
+'''
+
+[[subpack]]
+define = "GROUND_REFLECTION"
+materials = ["RenderChunk"]
+description = '''
+Fake Ground Reflection
+'''
+
+[[subpack]]
+define = "MULTILAYERED_ROUNDED_CLOUDS"
+materials = ["Clouds"]
+description = '''
+Default Cloud Multilayered
+'''
+
+[[subpack]]
+define = "VOLUMETRIC_CLOUDS"
+materials = ["Clouds"]
+description = '''
+Volumetric/Reaalistic Clouds
+'''
+
+[[subpack]]
+define = "SOFT_CLOUDS"
+materials = ["Clouds"]
+description = '''
+Soft Clouds
+'''
+
+[[subpack]]
+define = "VANILLA_CLOUDS"
+materials = ["Clouds", "RenderChunk"]
+description = '''
+Better Vanilla Clouds
+'''
 
 [[subpack]]
 define = "DEFAULT"

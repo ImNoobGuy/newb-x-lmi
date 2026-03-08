@@ -1,4 +1,4 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_isCross
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_isCross, v_time
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -11,9 +11,8 @@ uniform vec4 SunDirection;
 uniform vec4 DimensionID;
 
 float sideShadow(vec3 normal, float g) {
-    float ao = mix(0.3, 1.0, smoothstep(0.2, 0.9, g));
     float side = 1.0;
-    float shadowStrength = 0.4;
+    float shadowStrength = 0.3;
 
     if (DimensionID.x < 0.5) {
         vec3 lightDir = SunDirection.xyz;
@@ -21,7 +20,7 @@ float sideShadow(vec3 normal, float g) {
         float intensity = smoothstep(0.0, 0.4, -sunDot);
         side = mix(1.0, shadowStrength, intensity);
 
-        float Fade = clamp(SunDirection.y*0.5+0.5, 0.0, 1.0);
+        float Fade = clamp(SunDirection.y * 0.6 + 0.6, 0.0, 1.0);
         side = mix(1.0, side, Fade);
     } else {
         vec3 fixedDir = normalize(vec3(0.5, 0.5, 0.0));
@@ -29,7 +28,7 @@ float sideShadow(vec3 normal, float g) {
         float intensity = smoothstep(0.0, 0.4, -fixedDot);
         side = mix(1.0, shadowStrength, intensity);
     }
-    return ao * side;
+    return side;
 }
   
 void main() {
@@ -39,6 +38,18 @@ void main() {
   #endif
 
   vec4 diffuse = texture2D(s_MatTexture, v_texcoord0);
+  
+  vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
+  vec2 sampleUV = v_texcoord0 + offset * vec2(-0.15, -0.15);
+  vec4 neighborTex = texture2D(s_MatTexture, sampleUV);
+  if (neighborTex.a > 0.6) {
+    vec3 neighbor = neighborTex.rgb;
+    vec3 contrast = diffuse.rgb - neighbor;
+    float dist = length(v_wPos);
+    float fade = clamp(1.0 - dist / 16.0, 0.0, 1.0);
+    diffuse.rgb += contrast * 1.0 * fade;
+  }
+      
   vec4 color = v_color0;
 
   #ifdef ALPHA_TEST
@@ -62,9 +73,9 @@ void main() {
   #endif
 
   diffuse.rgb *= color.rgb;
-  
+
   #ifndef ALPHA_TEST
-    if (v_extra.b <= 0.9) {
+    if (v_extra.b <= 0.9 && v_isTree > 0.5) {
         vec3 normal = normalize(cross(dFdx(v_wPos), dFdy(v_wPos)));
         float ss = sideShadow(normal, v_color1.g);
         diffuse.rgb *= ss;
@@ -84,9 +95,9 @@ void main() {
       diffuse.rgb += v_refl.rgb*mask;
     }
   }
-
+  
   diffuse.rgb = mix(diffuse.rgb, v_fog.rgb, v_fog.a);
-
+  
   diffuse.rgb = colorCorrection(diffuse.rgb);
 
   gl_FragColor = diffuse;

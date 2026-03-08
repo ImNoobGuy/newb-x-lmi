@@ -19,6 +19,7 @@ uniform vec4 RenderDistance;
 uniform vec4 DimensionID;
 uniform vec4 TimeOfDay;
 uniform vec4 Day;
+uniform vec4 BiomeID;
 
 void main() {
   mat4 World = u_model[0];
@@ -35,7 +36,7 @@ void main() {
   vec4 position = jitterVertexPosition(wpos);
 
   #if !(defined(DEPTH_ONLY) || defined(INSTANCING))
-    nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogControl.xyz);
+    nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogControl.xyz, BiomeID);
     nl_skycolor skycol = nlSkyColors(env);
 
     float relativeDist = position.z/FogControl.z;
@@ -45,7 +46,7 @@ void main() {
 
     vec4 fogColor;
     fogColor.rgb = nlRenderSky(skycol, env, viewDir, ViewPositionAndTime.w, false);
-    fogColor.a = nlRenderFogFade(relativeDist, FogColor.rgb, FogControl.xy);
+    fogColor.a = nlRenderFogFade(env, skycol, fogColor.rgb, relativeDist, FogColor.rgb, FogControl.xy, wpos.xyz, vec3_splat(0.0), ViewPositionAndTime.w);
 
     if (env.nether) {
       // blend fog with void color

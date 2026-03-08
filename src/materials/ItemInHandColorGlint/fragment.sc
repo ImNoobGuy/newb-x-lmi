@@ -38,6 +38,9 @@ void main() {
   #endif
 
   vec4 light = nlGlint(v_light, v_glintuv, s_GlintTexture, GlintColor, TileLightColor, albedo);
+  
+  vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
+  albedo.rgb += glow;
 
   albedo.rgb *= albedo.rgb * light.rgb;
 

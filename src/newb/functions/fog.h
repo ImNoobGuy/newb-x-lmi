@@ -1,7 +1,10 @@
 #ifndef FOG_H
 #define FOG_H
 
-float nlRenderFogFade(float relativeDist, vec3 FOG_COLOR, vec2 FOG_CONTROL) {
+#include "detection.h"
+#include "sky.h"
+
+float nlRenderFogFade(nl_environment env, nl_skycolor skycol, vec3 fogColor, float relativeDist, vec3 FOG_COLOR, vec2 FOG_CONTROL, vec3 wPos, vec3 tsp, float time) {
   #ifdef NL_FOG
     float fade = smoothstep(FOG_CONTROL.x, FOG_CONTROL.y, relativeDist);
 

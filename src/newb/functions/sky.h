@@ -86,7 +86,7 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
   vec2 g2 = g1*g1;
   vec2 g4 = g2*g2;
   vec2 g8 = g4*g4;
-  float mg8 = (g8.x*0.8+g8.y)*mask*(0.6-0.9*env.rainFactor);
+  float mg8 = (g8.x*0.8+g8.y)*mask*(0.4-0.9*env.rainFactor);
 
   float vh = 0.97 - viewDir.y*viewDir.y;
   float vh2 = pow(vh, 0.8);
@@ -105,7 +105,7 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
   vec3 sky = mix(skyCol.horizon, skyCol.horizonEdge, gradient1*df*df);
   sky = mix(skyCol.zenith, sky, gradient2*df);
 
-  sky *= 2.0+1.8*gradient2;
+  sky *= 1.8+1.8*gradient2;
   sky *= (1.0 + (2.0*mg8 + 7.0*mg8*mg8)*mask)*mix(1.0, mask, NL_SKY_VOID_DARKNESS);
 
   if (!isSkyPlane) {

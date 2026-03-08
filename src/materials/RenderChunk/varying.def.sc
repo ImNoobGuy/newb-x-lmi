@@ -19,3 +19,4 @@ vec4 v_extra      : TEXCOORD3;
 float v_isTree    : TEXCOORD4;
 vec3 v_wPos       : TEXCOORD5;
 float v_isCross   : TEXCOORD6;
+float v_time      : TEXCOORD7;

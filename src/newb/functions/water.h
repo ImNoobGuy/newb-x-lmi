@@ -52,9 +52,9 @@ vec4 nlWater(
   waterRefl += torchColor*NL_TORCHLIGHT_INTENSITY*lit.x*tc*tc;
 
   // mask sky reflection under shade
-  if (!env.end) {
+  /*if (!env.end) {
     waterRefl *= 0.05 + lit.y*1.14;
-  }
+  }*/
 
   #ifdef NL_WATER_REFL_MASK
     float mask = 0.05+0.05*sin(viewDir.x*12.0)*sin(viewDir.z*6.0);

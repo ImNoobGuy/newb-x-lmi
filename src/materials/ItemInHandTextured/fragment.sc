@@ -35,6 +35,9 @@ void main() {
   albedo.rgb *= mix(vec3_splat(1.0), v_color0.rgb, ColorBased.x);
 
   albedo = applyOverlayColor(albedo, OverlayColor);
+  
+  vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
+  albedo.rgb += glow;
 
   albedo.rgb *= albedo.rgb * v_light.rgb;
 

@@ -58,6 +58,9 @@ void main() {
   #endif
 
   albedo = applyLighting(albedo, light);
+  
+  vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
+  albedo.rgb += glow;
 
   #ifdef TRANSPARENT
     albedo = applyHudOpacity(albedo, HudOpacity.x);

@@ -12,12 +12,13 @@
   uniform vec4 FogColor;
   uniform vec4 FogAndDistanceControl;
   uniform vec4 ViewPositionAndTime;
+  uniform vec4 BiomeID;
 #endif
 
 void main() {
   #ifndef INSTANCING
     v_underwaterRainTimeDay.x = float(detectUnderwater(FogColor.rgb, FogAndDistanceControl.xy));
-    v_underwaterRainTimeDay.y = detectRain(FogAndDistanceControl.xyz);
+    v_underwaterRainTimeDay.y = detectRain(FogAndDistanceControl.xyz, BiomeID);
     v_underwaterRainTimeDay.z = ViewPositionAndTime.w;
     v_underwaterRainTimeDay.w = detectDayFactor(FogColor.rgb);
 

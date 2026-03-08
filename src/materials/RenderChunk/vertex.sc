@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_isCross
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_isCross, v_time
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -16,6 +16,7 @@ uniform vec4 TimeOfDay;
 uniform vec4 Day;
 uniform vec4 CameraPosition;
 uniform vec4 SunDirection;
+uniform vec4 BiomeID;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_LightMapTexture);
@@ -88,7 +89,7 @@ void main() {
     isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || isCherry;
   #endif
   
-  nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogAndDistanceControl.xyz);
+  nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogAndDistanceControl.xyz, BiomeID);
   nl_skycolor skycol = nlSkyColors(env);
 
   // time
@@ -137,11 +138,11 @@ void main() {
 
   vec4 fogColor;
   fogColor.rgb = nlRenderSky(skycol, env, viewDir, t, true);
-  fogColor.a = nlRenderFogFade(relativeDist, FogColor.rgb, FogAndDistanceControl.xy);
+  fogColor.a = nlRenderFogFade(env, skycol, fogColor.rgb, relativeDist, FogColor.rgb, FogAndDistanceControl.xy, worldPos, vec3(0.0,0.0,0.0), t);
   #ifdef NL_GODRAY
     fogColor.a = mix(fogColor.a, 1.0, min(NL_GODRAY*nlRenderGodRayIntensity(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb), 1.0));
   #endif
-
+  
   if (env.nether) {
     // blend fog with void color
     fogColor.rgb = colorCorrectionInv(FogColor.rgb);
@@ -211,6 +212,7 @@ void main() {
   v_isTree = isTree ? 1.0 : 0.0;
   v_wPos = worldPos;
   v_isCross = isCross;
+  v_time = t;
 
   #else
 

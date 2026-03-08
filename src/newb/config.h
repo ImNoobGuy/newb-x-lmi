@@ -31,28 +31,27 @@
 #define NL_TONEMAP_TYPE 3              // 1:Exponential, 2:Reinhard, 3:Extended Reinhard, 4:ACES
 #define NL_GAMMA 1.3                  // 0.3 low ~ 2.0 high
 //#define NL_CONTRAST 1.3
-#define NL_EXPOSURE 1.3              // [toggle] 0.5 dark ~ 3.0 bright
+#define NL_EXPOSURE 1.4              // [toggle] 0.5 dark ~ 3.0 bright
 #define NL_SATURATION 1.35            // [toggle] 0.0 grayscale ~ 4.0 super saturated
-#define NL_TINT                      // [toggle] enable light/dark tone tinting
+//#define NL_TINT                      // [toggle] enable light/dark tone tinting
 #define NL_TINT_LOW  vec3(0.999,0.936,0.985) // color tint for dark tone
 #define NL_TINT_HIGH vec3(0.985,0.936,0.999) // color tint for light tone
 
 /* Terrain lighting */
-#define NL_SUNLIGHT_INTENSITY   3.1  // 1.0 weak ~ 5.0 bright
-#define NL_TORCHLIGHT_INTENSITY 1.0  // 0.5 weak ~ 3.0 bright
+#define NL_SUNLIGHT_INTENSITY   3.0  // 1.0 weak ~ 5.0 bright
+#define NL_TORCHLIGHT_INTENSITY 0.8  // 0.5 weak ~ 3.0 bright
 #define NL_SHADOW_INTENSITY     0.8  // 0.0 no shadow ~ 1.0 strong shadow
 #define NL_BLINKING_TORCH  // [toggle] flickering light
 //#define NL_CLOUD_SHADOW      // [toggle] cloud shadow (simple clouds only)
 
 /* Sun/moon light color on terrain */
 #define NL_DAWN_SUNLIGHT_COL   vec3(0.1,0.01,0.0)
-#define NL_NOON_SUNLIGHT_COL   vec3(0.95,0.95,0.98)*1.0
+#define NL_NOON_SUNLIGHT_COL   vec3(1.0,1.0,1.0)
 #define NL_NIGHT_MOONLIGHT_COL vec3(0.01,0.03,0.2)
 
 /* Ambient light on terrain (light that is added everywhere) */
 #define NL_END_AMBIENT           vec3(0.8,0.2,0.9)
 #define NL_NETHER_AMBIENT        vec3(0.6,0.08,0.03)
-#define NL_NIGHT_INTENSITY       0.0
 
 /* Torch colors */
 #define NL_OVERWORLD_TORCH_COL  vec3(1.0,0.78,0.64)
@@ -73,16 +72,16 @@
 
 /* Sky colors - zenith=top, horizon=bottom */
 #define NL_DAWN_ZENITH_COL   vec3(0.1,0.035,0.25)
-#define NL_DAWN_HORIZON_COL  vec3(4.7,1.9,0.0)
-#define NL_DAWN_EDGE_COL     vec3(4.7,1.9,0.0)
+#define NL_DAWN_HORIZON_COL  vec3(4.0,1.0,0.0)
+#define NL_DAWN_EDGE_COL     vec3(4.0,1.0,0.0)
 
 #define NL_DAY_ZENITH_COL    vec3(0.3,0.46,1.0)*1.0
 #define NL_DAY_HORIZON_COL   vec3(0.76,0.9,1.0)*1.0
 #define NL_DAY_EDGE_COL      vec3(0.76,0.9,1.0)*1.0
 
-#define NL_NIGHT_ZENITH_COL  vec3(0.07,0.13,0.31)*0.1
-#define NL_NIGHT_HORIZON_COL vec3(0.15,0.27,0.6)*0.4
-#define NL_NIGHT_EDGE_COL    vec3(0.15,0.27,0.6)*0.4
+#define NL_NIGHT_ZENITH_COL  vec3(0.07,0.13,0.31)*0.01
+#define NL_NIGHT_HORIZON_COL vec3(0.15,0.27,0.6)*0.1
+#define NL_NIGHT_EDGE_COL    vec3(0.15,0.27,0.6)*0.1
 
 #define NL_RAIN_ZENITH_COL   vec3(0.47,0.51,0.56)
 #define NL_RAIN_HORIZON_COL  vec3(0.6,0.6,0.6)
@@ -93,8 +92,8 @@
 
 /* Rainbow */
 //#define NL_RAINBOW           // [toggle] enable rainbow in sky
-#define NL_RAINBOW_CLEAR 0.0 // 0.3 subtle ~ 1.0 bright during clear weather
-#define NL_RAINBOW_RAIN  0.4 // 0.3 subtle ~ 1.0 bright during rain weather
+#define NL_RAINBOW_CLEAR 0.8 // 0.3 subtle ~ 1.0 bright during clear weather
+#define NL_RAINBOW_RAIN  0.3 // 0.3 subtle ~ 1.0 bright during rain weather
 
 /* Ore glow intensity */
 #define NL_GLOW_TEX 6.3           // 0.4 weak ~ 8.0 bright
@@ -185,7 +184,7 @@
 #define NL_GALAXY_DAY_VISIBILITY 0.0    // 0.0 invisible - 1.0 visible
 
 /* Chunk loading slide in animation */
-//#define NL_CHUNK_LOAD_ANIM 100.0 // [toggle] -600.0 fall from top ~ 600.0 rise from bottom
+#define NL_CHUNK_LOAD_ANIM 50.0 // [toggle] -600.0 fall from top ~ 600.0 rise from bottom
 
 /* Sun/Moon */
 #define NL_SUN_SIZE  2.5           // 0.3 tiny ~ 4.0 massive
@@ -233,22 +232,39 @@
   Build tool will enable corresponding flags when compiling.
 */
 
-#ifdef LITE
-  #define NO_WAVE
-  #undef NL_GLOW_SHIMMER
-  #undef NL_LAVA_NOISE
-  #undef NL_WEATHER_SPECK
-  #undef NL_SHOOTING_STAR
-  #undef NL_CLOUD_AURORA_REFLECTION
-  #undef NL_UNDERWATER_STREAKS
-  #undef NL_RAIN_MIST_OPACITY
-  #undef NL_CLOUDY_FOG
-  #undef NL_ENTITY_EDGE_HIGHLIGHT
+#ifdef MULTILAYERED_ROUNDED_CLOUDS
+  #define NL_CLOUD2_LAYER2
 #endif
 
-#ifdef NO_WAVE_NO_FOG
-  #define NO_WAVE
-  #define NO_FOG
+#ifdef VOLUMETRIC_CLOUDS
+  #undef NL_CLOUD_TYPE
+  #define NL_CLOUD_TYPE 3
+#endif
+
+#ifdef SOFT_CLOUDS
+  #undef NL_CLOUD_TYPE
+  #define NL_CLOUD_TYPE 1
+#endif
+
+#ifdef VANILLA_CLOUDS
+  #undef NL_CLOUD_TYPE
+  #define NL_CLOUD_TYPE 0
+#endif
+
+#ifdef GALAXY
+  #define NL_GALAXY_STARS 3.0
+#endif
+
+#ifdef RAINBOW
+  #define NL_RAINBOW
+#endif
+
+#ifdef GROUND_REFLECTION
+  #define NL_GROUND_REFL 0.8
+#endif
+
+#ifdef NO_SHOOTING_STARS
+  #undef NL_SHOOTING_STAR
 #endif
 
 #ifdef NO_FOG
@@ -263,18 +279,9 @@
   #undef NL_RAIN_MIST_OPACITY
 #endif
 
-#ifdef CHUNK_ANIM
-  #define NL_CHUNK_LOAD_ANIM 100.0
-#endif
-
-#ifdef SOFT_CLOUDS
-  #undef NL_CLOUD_TYPE
-  #define NL_CLOUD_TYPE 1
-#endif
-
-#ifdef VANILLA_CLOUDS
-  #undef NL_CLOUD_TYPE
-  #define NL_CLOUD_TYPE 0
+#ifdef NO_WAVE_NO_FOG
+  #define NO_WAVE
+  #define NO_FOG
 #endif
 
 #endif

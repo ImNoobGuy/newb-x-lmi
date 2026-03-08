@@ -57,6 +57,9 @@ void main() {
   light = nlGlint(light, v_glintuv, s_MatTexture1, GlintColor, TileLightColor, albedo);
 
   albedo = applyLighting(albedo, light);
+  
+  vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
+  albedo.rgb += glow;
 
   #ifdef TRANSPARENT
     albedo = applyHudOpacity(albedo, HudOpacity.x);

@@ -17,6 +17,7 @@ uniform vec4 ViewPositionAndTime;
 uniform vec4 TimeOfDay;
 uniform vec4 CameraPosition;
 uniform vec4 Day;
+uniform vec4 BiomeID;
 
 float fog_fade(vec3 wPos) {
   return clamp(2.0 - length(wPos * vec3(0.005, 0.002, 0.005)), 0.0, 1.0);
@@ -30,7 +31,7 @@ void main() {
   #endif
 
   float t = ViewPositionAndTime.w;
-  float rain = detectRain(FogAndDistanceControl.xyz);
+  float rain = detectRain(FogAndDistanceControl.xyz, BiomeID);
 
   nl_environment env;
   env.end = false;
