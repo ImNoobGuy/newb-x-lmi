@@ -9,7 +9,7 @@ description = '''
 ''' # %w = patch warning, %v = version
 authors = ["devendrn", "zan4re27"]
 url = "https://github.com/zan4re27/newb-x-lmi/"
-uuid = "dbae02f7-0fdd-4cc7-9422-8d5778086c03" # Use https://www.uuidgenerator.net/version4
+uuid = "f431a500-9f9f-42a2-ae57-f28a6e850f93" # Use https://www.uuidgenerator.net/version4
 materials = ["Sky", "RenderChunk", "Actor", "ActorGlint", "EndSky", "Clouds", "SunMoon", "Weather", "ItemInHandTextured", "ItemInHandColor", "ItemInHandColorGlint", "Stars"]
 
 [info] 
