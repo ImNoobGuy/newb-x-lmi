@@ -107,7 +107,7 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
   gradient2 = mix(gradient2, 1.0, mg8);
 
   float dawnFactor = max(0.0001, 0.95-env.dayFactor*env.dayFactor);
-  float hmm = max(g2.x, g2.y)
+  float hmm = max(g2.x, g2.y);
   float df = mix(1.0, hmm, dawnFactor*dawnFactor);
   df = max(df, 0.2);
   vec3 sky = mix(skyCol.horizon, skyCol.horizonEdge, gradient1*df*df);
