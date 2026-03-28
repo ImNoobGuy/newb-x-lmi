@@ -93,7 +93,7 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
   vec2 g8 = g4;
   float mg8 = (g8.x*0.5+g8.y)*mask*max(0.0, 0.6-0.9*env.rainFactor);
 
-  float vh = max(0.0, 1.0 - viewDir.y*viewDir.y;)
+  float vh = max(0.0, 1.0 - viewDir.y*viewDir.y);
   vh = max(vh, 0.0001);
   float vh2 = pow(vh, 1.2);
   vh2 = mix(vh2, mix(1.0, vh2*vh2, NL_SKY_VOID_FACTOR), step(viewDir.y, 0.0));
