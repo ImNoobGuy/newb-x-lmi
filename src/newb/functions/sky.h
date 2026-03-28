@@ -93,7 +93,7 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
   vec2 g8 = g4;
   float mg8 = (g8.x*0.5+g8.y)*mask*max(0.0, 0.6-0.9*env.rainFactor);
 
-  float vh = 0.95 - viewDir.y*viewDir.y;
+  float vh = max(0.0, 1.0 - viewDir.y*viewDir.y;)
   vh = max(vh, 0.0001);
   float vh2 = pow(vh, 1.2);
   vh2 = mix(vh2, mix(1.0, vh2*vh2, NL_SKY_VOID_FACTOR), step(viewDir.y, 0.0));
@@ -107,7 +107,9 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
   gradient2 = mix(gradient2, 1.0, mg8);
 
   float dawnFactor = max(0.0001, 0.95-env.dayFactor*env.dayFactor);
-  float df = mix(1.0, g2.x, dawnFactor*dawnFactor);
+  float hmm = max(g2.x, g2.y)
+  float df = mix(1.0, hmm, dawnFactor*dawnFactor);
+  df = max(df, 0.2);
   vec3 sky = mix(skyCol.horizon, skyCol.horizonEdge, gradient1*df*df);
   sky = mix(skyCol.zenith, sky, gradient2*df);
 
@@ -128,7 +130,7 @@ vec3 renderOverworldSky(nl_skycolor skyCol, nl_environment env, vec3 viewDir, bo
     rainbowFade *= 0.5+0.5*env.dayFactor;
     sky += spectrum(24.2*(0.85-g.x))*rainbowFade*skyCol.horizon;
   #endif
-
+  sky = max(sky, 0.001);
   return sky;
 }
 
