@@ -1,15 +1,15 @@
-name = "Newb X LMI"
+name = "Newb X LMI - Alpha"
 version = [0, 16, 0]
 min_supported_mc_version = [1, 26, 10]
 description = '''
 §c%w
-§7- Enhanced Newb Shader to improve vanilla looks!
+§7- Enhanced Newb Shader to improve vanilla looks! V16-Alpha
 %v
 §3https://github.com/zan4re27/newb-x-lmi/
 ''' # %w = patch warning, %v = version
 authors = ["devendrn", "zan4re27"]
 url = "https://github.com/zan4re27/newb-x-lmi/"
-uuid = "95f774cf-4afa-73e7-a21a-72146307b1d2" # Use https://www.uuidgenerator.net/version4
+uuid = "dbae02f7-0fdd-4cc7-9422-8d5778086c03" # Use https://www.uuidgenerator.net/version4
 materials = ["Sky", "RenderChunk", "Actor", "ActorGlint", "EndSky", "Clouds", "SunMoon", "Weather", "ItemInHandTextured", "ItemInHandColor", "ItemInHandColorGlint", "Stars"]
 
 [info] 
