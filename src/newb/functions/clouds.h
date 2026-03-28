@@ -62,8 +62,8 @@ vec4 renderCloudsRounded(
     vec3 vDir, vec3 vPos, float rain, float time, vec3 horizonCol, vec3 zenithCol, const float thickness, const float thickness_rain, const float speed,
     const vec2 scale, const float density, const vec2 boxiness
 ) {
-  float height = 9.0*mix(thickness, thickness_rain, rain);
-  float stepsf = 5.0;
+  float height = 7.0*mix(thickness, thickness_rain, rain);
+  float stepsf = 4.0;
 
   // scaled ray offset
   vec3 deltaP;
@@ -77,7 +77,7 @@ vec4 renderCloudsRounded(
   pos += deltaP;
 
   deltaP /= -stepsf;
-  pos += deltaP * hash(vPos.xz + time); // Displace Clouds' Step
+  pos += deltaP * hash(vPos.xz + time);
 
   // alpha, gradient
   vec2 d = vec2(0.0,0.5);
@@ -95,7 +95,7 @@ vec4 renderCloudsRounded(
   }
 
   vec4 col = vec4(horizonCol + zenithCol, d.x);
-  col.rgb = mix(col.rgb, mix(col.rgb,zenithCol,1.0), smoothstep(1.0,0.1,d.y));
+  col.rgb = mix(col.rgb, mix(col.rgb,zenithCol,1.0), smoothstep(1.0,0.05,d.y));
   col.rgb += dot(col.rgb, vec3(0.3,0.4,0.3))*d.y*d.y;
   col.rgb *= 1.0 - 0.8*rain;
   return col;

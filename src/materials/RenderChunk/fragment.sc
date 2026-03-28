@@ -1,4 +1,4 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_isCross, v_time
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -9,6 +9,7 @@ SAMPLER2D_AUTOREG(s_LightMapTexture);
 
 uniform vec4 SunDirection;
 uniform vec4 DimensionID;
+uniform vec4 RenderDistance;
 
 float sideShadow(vec3 normal, float g) {
     float side = 1.0;
@@ -28,9 +29,9 @@ float sideShadow(vec3 normal, float g) {
         float intensity = smoothstep(0.0, 0.4, -fixedDot);
         side = mix(1.0, shadowStrength, intensity);
     }
-    return side;
+    return side ;
 }
-  
+
 void main() {
   #if defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY) || defined(INSTANCING)
     gl_FragColor = vec4(1.0,1.0,1.0,1.0);
@@ -46,10 +47,10 @@ void main() {
     vec3 neighbor = neighborTex.rgb;
     vec3 contrast = diffuse.rgb - neighbor;
     float dist = length(v_wPos);
-    float fade = clamp(1.0 - dist / 16.0, 0.0, 1.0);
-    diffuse.rgb += contrast * 1.0 * fade;
+    float fade = clamp(1.0 - dist / 13.0, 0.0, 1.0);
+    diffuse.rgb += contrast * 0.45 * fade;
   }
-      
+  
   vec4 color = v_color0;
 
   #ifdef ALPHA_TEST
@@ -58,14 +59,17 @@ void main() {
     }
   #endif
 
+  #if defined(SEASONS) && (defined(OPAQUE) || defined(ALPHA_TEST))
+    diffuse.rgb *= mix(vec3(1.0,1.0,1.0), texture2D(s_SeasonsTexture, v_color1.xy).rgb * 2.0, v_color1.z);
+  #endif
+  
   vec3 glow = nlGlow(s_MatTexture, v_texcoord0, v_extra.a);
 
   diffuse.rgb *= diffuse.rgb;
 
   #if defined(TRANSPARENT) && !(defined(SEASONS) || defined(RENDER_AS_BILLBOARDS))
     if (v_extra.b > 0.9) {
-      vec3 blend = vec3_splat(1.0 - NL_WATER_TEX_OPACITY*(1.0 - diffuse.b*1.8));
-      diffuse.rgb = blend*v_color1.rgb;
+      diffuse.rgb = vec3_splat(1.0 - NL_WATER_TEX_OPACITY*(1.0 - diffuse.b*1.8));
       diffuse.a = color.a;
     }
   #else
@@ -73,16 +77,18 @@ void main() {
   #endif
 
   diffuse.rgb *= color.rgb;
-
+  
   #ifndef ALPHA_TEST
-    if (v_extra.b <= 0.9 && v_isTree > 0.5) {
-        vec3 normal = normalize(cross(dFdx(v_wPos), dFdy(v_wPos)));
-        float ss = sideShadow(normal, v_color1.g);
-        diffuse.rgb *= ss;
+    if (v_extra.b <= 0.9) {
+      vec3 normal = normalize(cross(dFdx(v_wPos), dFdy(v_wPos)));
+      float ss = sideShadow(normal, v_color1.g);
+      diffuse.rgb *= ss;
     }
   #endif
 
-  diffuse.rgb += glow;
+  if (v_isTree <= 0.5) {
+    diffuse.rgb += glow;
+  }
 
   if (v_extra.b > 0.9) {
     diffuse.rgb += v_refl.rgb*v_refl.a;
@@ -96,8 +102,10 @@ void main() {
     }
   }
   
+  //diffuse.rgb *= mix(1.0, 0.5, smoothstep(0.58, 0.56, v_color1.g));
+
   diffuse.rgb = mix(diffuse.rgb, v_fog.rgb, v_fog.a);
-  
+
   diffuse.rgb = colorCorrection(diffuse.rgb);
 
   gl_FragColor = diffuse;

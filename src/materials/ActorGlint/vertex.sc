@@ -23,7 +23,6 @@ uniform vec4 RenderDistance;
 uniform vec4 DimensionID;
 uniform vec4 TimeOfDay;
 uniform vec4 Day;
-uniform vec4 BiomeID;
 
 void main() {
   mat4 World = u_model[0];
@@ -32,35 +31,35 @@ void main() {
 
   vec2 texcoord0 = a_texcoord0;
 
-  vec3 worldPosition;
+  vec3 wpos;
   #ifdef INSTANCING
     mat4 model = mtxFromCols(i_data0, i_data1, i_data2, vec4(0.0, 0.0, 0.0, 1.0));
-    worldPosition = instMul(model, vec4(a_position, 1.0)).xyz;
+    wpos = instMul(model, vec4(a_position, 1.0)).xyz;
   #else
-    worldPosition = mul(World, vec4(a_position, 1.0)).xyz;
+    wpos = mul(World, vec4(a_position, 1.0)).xyz;
   #endif
 
-  vec4 position = jitterVertexPosition(worldPosition);
+  vec4 position = jitterVertexPosition(wpos);
 
   #if !(defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY) || defined(INSTANCING))
-    nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogControl.xyz, BiomeID);
+    nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogControl.xyz);
     nl_skycolor skycol = nlSkyColors(env);
 
     float relativeDist = position.z/FogControl.z;
 
-    worldPosition.y = -worldPosition.y;
-    vec3 viewDir = normalize(worldPosition.xyz);
+    wpos.y = -wpos.y;
+    vec3 viewDir = normalize(wpos.xyz);
 
     vec4 fogColor;
     fogColor.rgb = nlRenderSky(skycol, env, viewDir, ViewPositionAndTime.w, false);
-    fogColor.a = nlRenderFogFade(env, skycol, fogColor.rgb, relativeDist, FogColor.rgb, FogControl.xy, worldPosition.xyz, vec3_splat(0.0), ViewPositionAndTime.w);
+    fogColor.a = nlRenderFogFade(env, skycol, fogColor.rgb, relativeDist, FogColor.rgb, FogControl.xy, wpos.xyz, vec3_splat(0.0), ViewPositionAndTime.w);
 
     if (env.nether) {
       // blend fog with void color
       fogColor.rgb = colorCorrectionInv(FogColor.rgb);
     }
 
-    vec3 light = nlEntityLighting(skycol, env, a_position, a_normal, worldPosition.xyz, World, TileLightColor, OverlayColor, skycol.horizonEdge, ViewPositionAndTime.w, TimeOfDay.x, RenderDistance.x);
+    vec3 light = nlEntityLighting(skycol, env, a_position, a_normal, wpos.xyz, World, TileLightColor, OverlayColor, skycol.horizonEdge, ViewPositionAndTime.w, TimeOfDay.x, RenderDistance.x);
 
     vec4 glintuv;
     glintuv.xy = calculateLayerUV(texcoord0, UVAnimation.x, UVAnimation.z, UVScale.xy);

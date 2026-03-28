@@ -24,7 +24,7 @@ void main() {
       vec2 dir = vec2(model[3][0], model[3][1]);
     #endif
     float st = 2.0*PI*TimeOfDay.x + 0.5*PI;
-    bool isSun = dot(vec2(cos(st), sin(st)), dir) > 0.0;
+    bool isSun = dot(vec2(cos(st), sin(st)), dir) > 0.001;
 
     float dist = 300.0;
     float angle = 0.0;

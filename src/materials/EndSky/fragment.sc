@@ -12,11 +12,10 @@ $input v_texcoord0, v_posTime
 
 void main() {
   #ifndef INSTANCING
-    
     vec4 diffuse = texture2D(s_SkyTexture, v_texcoord0);
     vec3 vDir = normalize(v_posTime.xyz);
 
-    vec3 color = renderEndSky(getEndHorizonCol(), getEndZenithCol(), vDir, v_posTime.w);
+    vec3 color = renderEndSky(getEndHorizonCol(), getEndZenithCol(), normalize(v_posTime.xyz), v_posTime.w);
     color += 2.8*diffuse.rgb; // stars
     color += 1.5*endGalaxy(vDir, v_posTime.w);
     #ifdef NL_END_VORTEX

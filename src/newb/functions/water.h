@@ -16,11 +16,12 @@ float calculateFresnel(float cosR, float r0) {
 
 vec4 nlWater(
   inout vec4 color, inout vec3 wPos, nl_skycolor skycol, nl_environment env, vec4 COLOR, vec3 viewDir,
-  vec3 cPos, vec3 tiledCpos, vec3 CAMERA_POS, vec3 light, vec3 torchColor, vec2 lit,
+  vec3 cPos, vec3 tiledCpos, vec3 gPos, vec3 CAMERA_POS, vec3 light, vec3 torchColor, vec2 lit,
   float fractCposY, float camDist, highp float t
 ) {
 
-  vec2 bump = vec2(disp(tiledCpos, NL_WATER_WAVE_SPEED*t), disp(tiledCpos, NL_WATER_WAVE_SPEED*(t+1.8))) - 0.5;
+  vec2 bump = vec2_splat(movingNoise2D(gPos.xz + gPos.yy, NL_WATER_WAVE_SPEED*t, 0.6));
+
   vec3 nrm;
   if (fractCposY > 0.0) { // top plane
     nrm.xz = bump*NL_WATER_BUMP;

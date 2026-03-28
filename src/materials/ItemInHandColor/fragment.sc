@@ -33,7 +33,13 @@ void main() {
     }
   #endif
 
-  albedo.rgb *= albedo.rgb * v_light.rgb;
+  bool glowing = v_color0.a <= 0.99;
+  if (!glowing) {
+    albedo.rgb *= albedo.rgb * v_light.rgb;
+  } else {
+    albedo.rgb *= albedo.rgb * v_light.rgb;
+    albedo.rgb *= 5.0;
+  }
 
   albedo.rgb = mix(albedo.rgb, v_fog.rgb, v_fog.a);
 

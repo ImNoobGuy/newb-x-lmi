@@ -152,15 +152,15 @@ def run(args):
 
     pack_description: str = pack_config['description']
 
-    patch_warning = "Only works with "
+    patch_warning = "Only works by using "
     if profile == 'android':
-        patch_warning += "Patched Minecraft"
+        patch_warning += "MB Loader app"
     elif profile == 'windows':
-        patch_warning += "BetterRenderDragon"
+        patch_warning += "BetterRenderDragon or MatJect"
     elif profile == 'merged':
-        patch_warning += "BetterRenderDragon or Patched Minecraft"
+        patch_warning += "BetterRenderDragon, MB Loader app, and Sideload (for iOS)"
     else:  # ios
-        patch_warning = "Materials need to be installed manually for shader to work"
+        patch_warning = "Materials need to be sideloaded in order for the shader to work"
 
     pack_description = pack_description.replace("%w", patch_warning).replace("%v", "v" + pack_version + "-" + args.p)
     pack_config['description'] = pack_description

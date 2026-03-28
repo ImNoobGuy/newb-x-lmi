@@ -19,6 +19,15 @@ void main() {
   #endif
 
   vec4 albedo = MatColor * texture2D(s_MatTexture, v_texcoord0);
+  
+  vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
+  vec2 sampleUV = v_texcoord0 + offset * vec2(-0.15, -0.15);
+  vec4 neighborTex = texture2D(s_MatTexture, sampleUV);
+  if (neighborTex.a > 0.6) {
+    vec3 neighbor = neighborTex.rgb;
+    vec3 contrast = albedo.rgb - neighbor;
+    albedo.rgb += contrast * 0.3;
+  }
 
   #ifdef ALPHA_TEST
     if (albedo.a < 0.5) {
@@ -37,6 +46,9 @@ void main() {
   albedo = applyOverlayColor(albedo, OverlayColor);
 
   albedo.rgb *= albedo.rgb * v_light.rgb;
+  
+  vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
+  albedo.rgb += glow;
 
   albedo.rgb *= nlEntityEdgeHighlight(v_edgemap);
 

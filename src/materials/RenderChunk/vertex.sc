@@ -2,7 +2,7 @@ $input a_color0, a_position, a_texcoord0, a_texcoord1
 #ifdef INSTANCING
   $input i_data0, i_data1, i_data2, i_data3
 #endif
-$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_isCross, v_time
+$output v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -15,8 +15,6 @@ uniform vec4 DimensionID;
 uniform vec4 TimeOfDay;
 uniform vec4 Day;
 uniform vec4 CameraPosition;
-uniform vec4 SunDirection;
-uniform vec4 BiomeID;
 
 SAMPLER2D_AUTOREG(s_MatTexture);
 SAMPLER2D_AUTOREG(s_LightMapTexture);
@@ -36,9 +34,7 @@ void main() {
     worldPos.y -= NL_CHUNK_LOAD_ANIM*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x*RenderChunkFogAlpha.x;
   #endif
 
-  float isCross = 0.0;
   #ifdef RENDER_AS_BILLBOARDS
-    isCross = 1.0;
     worldPos += vec3(0.5,0.5,0.5);
 
     vec3 modelCamPos = ViewPositionAndTime.xyz - worldPos;
@@ -60,6 +56,7 @@ void main() {
 
   float relativeDist = camDis / FogAndDistanceControl.z;
 
+  vec3 gPos = worldPos.xyz + CameraPosition.xyz;
   vec3 cPos = a_position.xyz;
   vec3 bPos = fract(cPos);
   vec3 tiledCpos = fract(cPos*0.0625);
@@ -78,7 +75,6 @@ void main() {
   // tree leaves detection
   vec4 diffuse = texture2DLod(s_MatTexture, a_texcoord0, 0.0);
   bool isCherry = false;
-
   #if defined(ALPHA_TEST) && !defined(RENDER_AS_BILLBOARDS)
       bool isCherryTex = (diffuse.r > diffuse.g && diffuse.b > diffuse.g && diffuse.r > diffuse.b);
       isCherry = (isCherryTex || color.a == 0.0) && (bPos.x + bPos.y + bPos.z < 0.001);
@@ -88,8 +84,8 @@ void main() {
   #if defined(ALPHA_TEST)
     isTree = (isColored && (bPos.x+bPos.y+bPos.z < 0.001)) || isCherry;
   #endif
-  
-  nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogAndDistanceControl.xyz, BiomeID);
+
+  nl_environment env = nlDetectEnvironment(DimensionID.x, TimeOfDay.x, Day.x, FogColor.rgb, FogAndDistanceControl.xyz);
   nl_skycolor skycol = nlSkyColors(env);
 
   // time
@@ -142,7 +138,7 @@ void main() {
   #ifdef NL_GODRAY
     fogColor.a = mix(fogColor.a, 1.0, min(NL_GODRAY*nlRenderGodRayIntensity(cPos, worldPos, t, uv1, relativeDist, FogColor.rgb), 1.0));
   #endif
-  
+
   if (env.nether) {
     // blend fog with void color
     fogColor.rgb = colorCorrectionInv(FogColor.rgb);
@@ -161,7 +157,7 @@ void main() {
     color.a = mix(color.a, 1.0, 0.5*clamp(relativeDist, 0.0, 1.0));
     if (a_color0.b > 0.3 && a_color0.a < 0.95) {
       water = 1.0;
-      refl = nlWater(color, worldPos, skycol, env, a_color0, viewDir, cPos, tiledCpos, CameraPosition.xyz, light, torchColor, lit, bPos.y, camDis, t);
+      refl = nlWater(color, worldPos, skycol, env, a_color0, viewDir, cPos, tiledCpos, gPos, CameraPosition.xyz, light, torchColor, lit, bPos.y, camDis, t);
     } else {
       refl = nlRefl(color, skycol, env, viewDir, worldPos, tiledCpos, CameraPosition.xyz, torchColor, lit, camDis, FogAndDistanceControl.z, t);
     }
@@ -191,10 +187,10 @@ void main() {
 
   #ifdef NL_LAVA_NOISE
     bool isc = (a_color0.r+a_color0.g+a_color0.b) > 2.999;
-    bool isb = bPos.y < 0.891 && bPos.y > 0.889;
+    bool isb = bPos.y > 0.8;
     if (isc && isb && (uv1.x > 0.81 && uv1.x < 0.876) && a_texcoord0.y > 0.45) {
-      vec4 lava = nlLavaNoise(tiledCpos, t);
-      pos.y += cos(length(abs(a_position.xyz - 8.0) * 2.0) + ViewPositionAndTime.w * 0.5) * 0.05;
+      vec4 lava = nlLavaNoise(gPos, t);
+      pos.y += cos(length(abs(a_position.xyz - 8.0) * 1.0) + ViewPositionAndTime.w * 0.2) * 0.05;
       #ifdef NL_LAVA_NOISE_BUMP
         worldPos.y += NL_LAVA_NOISE_BUMP*lava.a;
       #endif
@@ -211,8 +207,6 @@ void main() {
   v_fog = fogColor;
   v_isTree = isTree ? 1.0 : 0.0;
   v_wPos = worldPos;
-  v_isCross = isCross;
-  v_time = t;
 
   #else
 

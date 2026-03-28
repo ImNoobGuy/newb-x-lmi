@@ -27,6 +27,15 @@ void main() {
   #endif
 
   vec4 albedo = getActorAlbedoNoColorChange(v_texcoord0, s_MatTexture, s_MatTexture1, MatColor);
+  
+  vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
+  vec2 sampleUV = v_texcoord0 + offset * vec2(-0.15, -0.15);
+  vec4 neighborTex = texture2D(s_MatTexture, sampleUV);
+  if (neighborTex.a > 0.6) {
+    vec3 neighbor = neighborTex.rgb;
+    vec3 contrast = albedo.rgb - neighbor;
+    albedo.rgb += contrast * 0.2;
+  }
 
   #ifdef ALPHA_TEST
     float alpha = mix(albedo.a, (albedo.a * OverlayColor.a), TintedAlphaTestEnabled.x);
@@ -60,6 +69,10 @@ void main() {
   albedo = applyLighting(albedo, light);
   
   vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
+  #ifdef TESTI
+    vec3 glow2 = nlGlow(s_MatTexture1, v_texcoord0, 1.0);
+    glow += glow2;
+  #endif
   albedo.rgb += glow;
 
   #ifdef TRANSPARENT

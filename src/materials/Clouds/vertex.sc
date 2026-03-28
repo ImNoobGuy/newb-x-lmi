@@ -11,16 +11,16 @@ $output v_color0
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
 
+// uniform vec4 CloudColor;
 uniform vec4 FogColor;
 uniform vec4 FogAndDistanceControl;
 uniform vec4 ViewPositionAndTime;
 uniform vec4 TimeOfDay;
 uniform vec4 CameraPosition;
 uniform vec4 Day;
-uniform vec4 BiomeID;
 
 float fog_fade(vec3 wPos) {
-  return clamp(2.0 - length(wPos * vec3(0.005, 0.002, 0.005)), 0.0, 1.0);
+  return clamp(2.0-length(wPos*vec3(0.005, 0.002, 0.005)), 0.0, 1.0);
 }
 
 void main() {
@@ -31,7 +31,7 @@ void main() {
   #endif
 
   float t = ViewPositionAndTime.w;
-  float rain = detectRain(FogAndDistanceControl.xyz, BiomeID);
+  float rain = detectRain(FogAndDistanceControl.xyz);
 
   nl_environment env;
   env.end = false;
@@ -46,18 +46,20 @@ void main() {
   vec3 worldPos;
 
   #if NL_CLOUD_TYPE <= 2
+
     vec4 color;
+
     #if NL_CLOUD_TYPE == 0
       float thickness = (NL_CLOUD0_THICKNESS + rain*(NL_CLOUD0_RAIN_THICKNESS - NL_CLOUD0_THICKNESS));
       pos.y *= thickness;
       worldPos = mul(model, vec4(pos, 1.0)).xyz;
 
-      color.rgb = skycol.zenith + skycol.horizonEdge;
+      color.rgb = (skycol.zenith + skycol.horizonEdge)*0.6;
       color.rgb += dot(color.rgb, vec3(0.3,0.4,0.3))*a_position.y;
       color.rgb *= 1.0 - 0.8*rain;
       color.rgb = colorCorrection(color.rgb);
-      float cloudFade = mix(1.0,0.0, a_position.y);
-      color.a = NL_CLOUD0_OPACITY*cloudFade*fog_fade(worldPos.xyz);
+      float cloudFade = pow(cloudFade, 2.0);
+      color.a = mix(NL_CLOUD0_OPACITY, cloudFade, 0.5)*fog_fade(worldPos.xyz);
 
       // clouds.png has two non-overlaping layers:
       // r=unused, g=layers, b=reference, a=unused
@@ -71,7 +73,7 @@ void main() {
 
           vec4 aurora = renderAurora(worldPos, t, rain, FogColor.rgb);
 
-          float auroraIntensity = 0.8;
+          float auroraIntensity = 1.4;
           color.rgb = skycol.zenith + 0.8 * skycol.horizonEdge;
           color.rgb += aurora.rgb * auroraIntensity;
           color.rgb = mix(color.rgb, aurora.rgb * 1.5, 0.3);
@@ -79,7 +81,7 @@ void main() {
           color.a *= fog_fade(worldPos.xyz);
           color.a *= 1.5;
         #else
-          worldPos = vec3(0.0, 0.0, 0.0);
+          worldPos = vec3(0.0,0.0,0.0);
           color.a = 0.0;
         #endif
       }
