@@ -31,13 +31,13 @@
 #define NL_TONEMAP_TYPE 3              // 1:Exponential, 2:Reinhard, 3:Extended Reinhard, 4:ACES
 #define NL_GAMMA 1.33                  // 0.3 low ~ 2.0 high
 //#define NL_EXPOSURE 1.3              // [toggle] 0.5 dark ~ 3.0 bright
-#define NL_SATURATION 1.34            // [toggle] 0.0 grayscale ~ 4.0 super saturated
+#define NL_SATURATION 1.2            // [toggle] 0.0 grayscale ~ 4.0 super saturated
 //#define NL_TINT                      // [toggle] enable light/dark tone tinting
 #define NL_TINT_LOW  vec3(0.3,0.5,1.4) // color tint for dark tone
 #define NL_TINT_HIGH vec3(1.4,0.7,0.3) // color tint for light tone
 
 /* Terrain lighting */
-#define NL_SUNLIGHT_INTENSITY   2.55  // 1.0 weak ~ 5.0 bright
+#define NL_SUNLIGHT_INTENSITY   2.85  // 1.0 weak ~ 5.0 bright
 #define NL_TORCHLIGHT_INTENSITY 0.6  // 0.5 weak ~ 3.0 bright
 #define NL_SHADOW_INTENSITY     1.2  // 0.0 no shadow ~ 1.0 strong shadow
 #define NL_MIN_GAME_BRIGHTNESS	1.5
@@ -92,8 +92,8 @@
 
 /* Rainbow */
 //#define NL_RAINBOW           // [toggle] enable rainbow in sky
-#define NL_RAINBOW_CLEAR 0.0 // 0.3 subtle ~ 1.0 bright during clear weather
-#define NL_RAINBOW_RAIN  0.4 // 0.3 subtle ~ 1.0 bright during rain weather
+#define NL_RAINBOW_CLEAR 0.4 // 0.3 subtle ~ 1.0 bright during clear weather
+#define NL_RAINBOW_RAIN  0.0 // 0.3 subtle ~ 1.0 bright during rain weather
 
 /* Ore glow intensity */
 #define NL_GLOW_TEX 7.3           // 0.4 weak ~ 8.0 bright
@@ -184,7 +184,7 @@
 #define NL_GALAXY_DAY_VISIBILITY 0.0    // 0.0 invisible - 1.0 visible
 
 /* Chunk loading slide in animation */
-//#define NL_CHUNK_LOAD_ANIM 100.0 // [toggle] -600.0 fall from top ~ 600.0 rise from bottom
+#define NL_CHUNK_LOAD_ANIM 40.0 // [toggle] -600.0 fall from top ~ 600.0 rise from bottom
 
 /* Sun/Moon */
 #define NL_SUN_SIZE  2.5           // 0.3 tiny ~ 4.0 massive
@@ -200,7 +200,7 @@
 //#define NL_GODRAY 0.3 // [toggle] 0.1 subtle ~ 0.8 strong
 
 /* Sky reflection */
-//#define NL_GROUND_REFL 0.4       // [toggle] 0.2 slightly reflective ~ 1.0 fully reflect sky
+#define NL_GROUND_REFL 0.8       // [toggle] 0.2 slightly reflective ~ 1.0 fully reflect sky
 #define NL_GROUND_RAIN_WETNESS 1.0 // 0.0 no wetness ~ 1.0 fully wet blocks when raining
 #define NL_GROUND_RAIN_PUDDLES 1.2 // 0.0 no puddles ~ 1.0 puddles
 

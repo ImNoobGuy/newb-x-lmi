@@ -38,7 +38,7 @@ void main() {
     albedo.rgb *= albedo.rgb * v_light.rgb;
   } else {
     albedo.rgb *= albedo.rgb * v_light.rgb;
-    albedo.rgb *= 5.0;
+    albedo.rgb *= 6.0;
   }
 
   albedo.rgb = mix(albedo.rgb, v_fog.rgb, v_fog.a);

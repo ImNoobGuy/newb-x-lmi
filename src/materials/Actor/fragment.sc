@@ -69,10 +69,6 @@ void main() {
   albedo = applyLighting(albedo, light);
   
   vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
-  #ifdef TESTI
-    vec3 glow2 = nlGlow(s_MatTexture1, v_texcoord0, 1.0);
-    glow += glow2;
-  #endif
   albedo.rgb += glow;
 
   #ifdef TRANSPARENT
@@ -81,6 +77,12 @@ void main() {
 
   #ifdef NL_ENTITY_EDGE_HIGHLIGHT
     albedo.rgb *= nlEntityEdgeHighlight(v_edgemap);
+  #endif
+  
+  #ifdef TESTI
+    vec4 testi = texture2D(s_MatTexture1, v_texcoord0);
+    testi = 6.0;
+    albedo.rgb += testi;
   #endif
 
   albedo.rgb = mix(albedo.rgb, v_fog.rgb, v_fog.a);

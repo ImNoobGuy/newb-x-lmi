@@ -59,7 +59,7 @@ void main() {
   vec3 gPos = worldPos.xyz + CameraPosition.xyz;
   vec3 cPos = a_position.xyz;
   vec3 bPos = fract(cPos);
-  vec3 tiledCpos = fract(cPos*0.0625);
+  mediump vec3 tiledCpos = fract(cPos*0.0625);
 
   // bit 16 for dithering / mask tint
   // bits 15-9 for ??

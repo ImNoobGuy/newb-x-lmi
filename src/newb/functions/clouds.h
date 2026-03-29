@@ -94,7 +94,7 @@ vec4 renderCloudsRounded(
     d.y = 1.0 - d.y;
   }
 
-  vec4 col = vec4(horizonCol + zenithCol, d.x);
+  vec4 col = vec4(horizonCol*0.8 + zenithCol, d.x);
   col.rgb = mix(col.rgb, mix(col.rgb,zenithCol,1.0), smoothstep(1.0,0.05,d.y));
   col.rgb += dot(col.rgb, vec3(0.3,0.4,0.3))*d.y*d.y;
   col.rgb *= 1.0 - 0.8*rain;
