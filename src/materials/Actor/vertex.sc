@@ -3,7 +3,7 @@ $input a_position, a_color0, a_texcoord0, a_indices, a_normal
   $input i_data0, i_data1, i_data2
 #endif
 
-$output v_color0, v_fog, v_light, v_texcoord0, v_edgemap
+$output v_color0, v_fog, v_light, v_texcoord0, v_wpos, v_edgemap, v_lightmapUV
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/DynamicUtil.dragonh>
@@ -21,6 +21,7 @@ uniform vec4 RenderDistance;
 uniform vec4 DimensionID;
 uniform vec4 TimeOfDay;
 uniform vec4 Day;
+uniform vec4 CameraPosition;
 
 void main() {
   mat4 World = u_model[0];
@@ -58,11 +59,12 @@ void main() {
       fogColor.rgb = colorCorrectionInv(FogColor.rgb);
     }
 
-    vec3 light = nlEntityLighting(skycol, env, a_position, a_normal, wpos.xyz, World, TileLightColor, OverlayColor, skycol.horizonEdge, ViewPositionAndTime.w, TimeOfDay.x, RenderDistance.x);
+    vec3 light = nlEntityLighting(skycol, env, a_position, a_normal, wpos.xyz, World, TileLightColor, OverlayColor, skycol.horizonEdge, ViewPositionAndTime.w, TimeOfDay.x, RenderDistance.x, CameraPosition.xyz);
 
     v_texcoord0 = texcoord0;
     v_color0 = a_color0;
     v_fog = fogColor;
+    v_wpos = wpos;
     #ifdef NL_ENTITY_EDGE_HIGHLIGHT
       v_edgemap = nlEntityEdgeHighlightPreprocess(texcoord0);
     #else

@@ -45,7 +45,7 @@ nl_skycolor nlOverworldSkyColors(nl_environment env) {
   s.horizon = mix(NL_DAY_HORIZON_COL, NL_NIGHT_HORIZON_COL*f, nightFactor);
   s.horizonEdge = mix(NL_DAY_EDGE_COL, NL_NIGHT_EDGE_COL*f, nightFactor);
 
-  float dawnFactor = 1.0-env.dayFactor*env.dayFactor;
+  float dawnFactor = 1.0-smoothstep(0.0, 0.55, abs(env.dayFactor));
   dawnFactor *= dawnFactor*dawnFactor;
   dawnFactor *= mix(1.0, dawnFactor*dawnFactor, nightFactor);
   s.zenith = mix(s.zenith, NL_DAWN_ZENITH_COL, dawnFactor);
@@ -59,7 +59,7 @@ nl_skycolor nlOverworldSkyColors(nl_environment env) {
   s.horizon = mix(s.horizon, NL_RAIN_HORIZON_COL*hh, rainMix);
   s.horizonEdge = mix(s.horizonEdge, s.horizon, env.rainFactor);
   
-  float sat = 1.35;
+  float sat = 1.2;
   s.zenith = mix(vec3_splat(luminance(s.zenith)), s.zenith, sat);
   s.horizon = mix(vec3_splat(luminance(s.horizon)), s.horizon, sat);
   s.horizonEdge = mix(vec3_splat(luminance(s.horizonEdge)), s.horizonEdge, sat);
@@ -272,7 +272,7 @@ vec3 nlRenderGalaxy(vec3 vdir, vec3 fogColor, nl_environment env, float t) {
   gf *= 1.0-0.3*smoothstep(0.2, 0.3, gfmask);
   gf *= 1.0-0.2*smoothstep(0.3, 0.4, gfmask);
   gf *= 1.0-0.1*smoothstep(0.2, 0.1, gfmask);
-  vec3 gfcol = normalize(vec3(n0, cos(2.0*vdir.y), sin(vdir.x+n0)));
+  vec3 gfcol = normalize(vec3(n0, cos(2.0*vdir.y), sin(vdir.x+n0))+0.0001);
   stars += (0.4*gf + 0.012)*mix(vec3(0.5, 0.5, 0.5), gfcol*gfcol, NL_GALAXY_VIBRANCE);
 
   stars *= mix(1.0, NL_GALAXY_DAY_VISIBILITY, env.dayFactor);

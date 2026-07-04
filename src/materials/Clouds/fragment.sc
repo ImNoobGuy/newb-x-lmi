@@ -34,6 +34,7 @@ void main() {
         color += renderAurora(cloudPos, v_color2.a, v_color1.a, v_fogColor)*(1.0-0.95*color.a);
       #endif
 
+      color.rgb *= 1.1;
       color.a *= v_color0.a;
     #else
       vDir.xz *= 0.3 + v_color0.w; // height parallax

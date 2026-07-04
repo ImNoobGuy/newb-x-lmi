@@ -21,7 +21,7 @@ vec4 nlRefl(
   vec4 wetRefl = vec4(0.0,0.0,0.0,0.0);
 
   #ifndef NL_GROUND_REFL
-  if (env.rainFactor > 0.0 || env.end) {
+  if (env.rainFactor > 0.0 || env.end || env.nether) {
   #endif
 
     float wetness = lit.y*lit.y;
@@ -37,6 +37,8 @@ vec4 nlRefl(
         float reflective = wetness*env.rainFactor*NL_GROUND_RAIN_WETNESS;
         if (env.end) {
           reflective = 1.6;
+        } else if (env.nether) {
+          reflective = 0.5;
         }
       #else
         float reflective = NL_GROUND_REFL;

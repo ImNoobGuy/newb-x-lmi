@@ -88,7 +88,15 @@ vec3 nlLighting(
     // sky ambient
     lum = luminance(light);
     light += (skycol.horizon + skycol.zenith)*(uv1.y/(1.0+lum));
-
+    
+    // rain dimming
+    light *= mix(1.0, 0.3, smoothstep(0.0, 1.0, env.rainFactor));
+    
+    // sunset dimming
+    if (!(env.nether || env.end)) {
+      float sunsetDim = mix(1.0, 0.5, dawnFactor);
+      light *= sunsetDim;
+    }
   }
 
   // torch light
@@ -100,19 +108,13 @@ vec3 nlLighting(
     lum = luminance(light);
     light += vec3_splat(gameBrightness*(NL_MIN_GAME_BRIGHTNESS/(1.0+lum)));
   }
-  
-  #ifdef NL_BRIGHTER_CAVE
-    float caveMask = 1.0 - smoothstep(0.0, 0.3, uv1.y);
-    float caveAmbient = caveMask * 1.5;
-    light += vec3_splat(caveAmbient);
-  #endif
-  
+
   // darken at crevices
   light *= COLOR.g > 0.35 ? 1.0 : 0.8;
 
   // brighten tree leaves
   if (isTree) {
-    light *= 1.25;
+    light *= 1.5;
   }
 
   return light;
@@ -130,7 +132,7 @@ void nlUnderwaterLighting(inout vec3 light, inout vec3 pos, vec2 lit, vec2 uv1, 
   #endif
 }
 
-vec3 nlEntityLighting(nl_skycolor skycol, nl_environment env, vec3 pos, vec4 normal, vec3 wPos, mat4 world, vec4 tileLightCol, vec4 overlayCol, vec3 horizonEdgeCol, float t, float TIME_OF_DAY, float renderdistance) {
+vec3 nlEntityLighting(nl_skycolor skycol, nl_environment env, vec3 pos, vec4 normal, vec3 wPos, mat4 world, vec4 tileLightCol, vec4 overlayCol, vec3 horizonEdgeCol, float t, float TIME_OF_DAY, float renderdistance, vec3 CAMERA_POS) {
   float l = tileLightCol.b;
   float tl = tileLightCol.r;
   float lum;
@@ -138,13 +140,13 @@ vec3 nlEntityLighting(nl_skycolor skycol, nl_environment env, vec3 pos, vec4 nor
   if (env.nether || env.end) {
     tl = max(tl-0.6, 0.0);
     tl *= 21.0*tl;
+
     // nether & end lighting
     light = env.end ? NL_END_AMBIENT : NL_NETHER_AMBIENT;
-    light *= min(tileLightCol.b, 0.25); // lets clamp this for max value in darkness?
+    light *= min(tileLightCol.b, 0.25);
 
     lum = luminance(light);
     light += skycol.horizon/(1.0+lum);
-
   } else {
     tl = max(tl-0.08, 0.0);
     tl *= 4.0*tl;
@@ -181,6 +183,7 @@ vec3 nlEntityLighting(nl_skycolor skycol, nl_environment env, vec3 pos, vec4 nor
   } else {
     torchColor = NL_OVERWORLD_TORCH_COL;
   }
+
   lum = luminance(light);
   light += torchColor*(smoothstep(0.1, 0.0, tileLightCol.b-tileLightCol.r)*NL_TORCHLIGHT_INTENSITY*tl/(1.0+lum));
 
@@ -190,18 +193,12 @@ vec3 nlEntityLighting(nl_skycolor skycol, nl_environment env, vec3 pos, vec4 nor
     lum = luminance(light);
     light += vec3_splat(min(tileLightCol.r, 0.15)*(NL_MIN_GAME_BRIGHTNESS/(1.0+lum)));
   }
-  
-  #ifdef NL_BRIGHTER_CAVE
-    if (!(env.nether || env.end)) {
-      float skylight = tileLightCol.b;
-      float caveFactor = 1.0 - smoothstep(0.0, 0.2, skylight);
-      float caveAmbient = caveFactor * 2.6;
-      light += vec3_splat(caveAmbient);
-    }
-  #endif
 
   if (env.underwater) {
-    light *= mix(normalize(skycol.horizon), vec3_splat(0.6), tileLightCol.b*0.6);
+    vec3 gPos = wPos + CAMERA_POS;
+    float caustics = 0.2 + 0.2*sin(dot(gPos, vec3(1.8, 2.4, 2.1)) + 0.8*t);
+    light += 0.8*NL_UNDERWATER_BRIGHTNESS + NL_CAUSTIC_INTENSITY*caustics*(0.1 + tl);
+    light *= mix(normalize(skycol.horizon), vec3_splat(0.5), tileLightCol.b*0.2);
   }
 
   lum = luminance(light);
@@ -230,7 +227,7 @@ vec4 nlEntityEdgeHighlightPreprocess(vec2 texcoord) {
 vec4 nlLavaNoise(vec3 gPos, float t) {
   float n = movingNoise2D(gPos.xz + gPos.yy, NL_LAVA_NOISE_SPEED*t, 0.9);
   n *= n;
-  return vec4(mix(vec3_splat(0.0)*smoothstep(-0.1, 0.5, n), vec3_splat(1.5), n*n),n);
+  return vec4(mix(vec3(0.7, 0.4, 0.0)*smoothstep(-0.1, 0.5, n), vec3_splat(1.5), n*n),n);
 }
 
 #endif

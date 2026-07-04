@@ -3,7 +3,7 @@ $input a_position, a_color0, a_texcoord0, a_indices, a_normal
   $input i_data0, i_data1, i_data2
 #endif
 
-$output v_color0, v_fog, v_light, v_texcoord0, v_edgemap
+$output v_color0, v_fog, v_light, v_texcoord0, v_edgemap, v_normal
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/TAAUtil.dragonh>
@@ -19,10 +19,12 @@ uniform vec4 RenderDistance;
 uniform vec4 DimensionID;
 uniform vec4 TimeOfDay;
 uniform vec4 Day;
+uniform vec4 CameraPosition;
 
 void main() {
   mat4 World = u_model[0];
-  vec2 texcoord0 = a_texcoord0;
+  vec2 texcoord0 = 2.0*a_texcoord0.xy;
+  texcoord0 = fract(texcoord0) + ((floor(texcoord0)-0.5)/16384.0);
   vec3 wpos;
 
   #ifdef INSTANCING
@@ -31,6 +33,8 @@ void main() {
   #else
     wpos = mul(World, vec4(a_position, 1.0)).xyz;
   #endif
+  
+  vec3 wn = normalize(mul(World, a_normal).xyz);
 
   vec4 position = jitterVertexPosition(wpos);
 
@@ -52,13 +56,14 @@ void main() {
       fogColor.rgb = colorCorrectionInv(FogColor.rgb);
     }
 
-    vec3 light = nlEntityLighting(skycol, env, a_position, a_normal, wpos.xyz, World, TileLightColor, OverlayColor, skycol.horizonEdge, ViewPositionAndTime.w, TimeOfDay.x, RenderDistance.x);
+    vec3 light = nlEntityLighting(skycol, env, a_position, a_normal, wpos.xyz, World, TileLightColor, OverlayColor, skycol.horizonEdge, ViewPositionAndTime.w, TimeOfDay.x, RenderDistance.x, CameraPosition.xyz);
 
     v_texcoord0 = texcoord0;
     v_color0 = a_color0;
     v_fog = fogColor;
     v_edgemap = nlEntityEdgeHighlightPreprocess(texcoord0);
     v_light = vec4(light, 1.0);
+    v_normal = wn;
   #endif
 
   gl_Position = position;

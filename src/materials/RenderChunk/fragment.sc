@@ -1,4 +1,4 @@
-$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos
+$input v_color0, v_color1, v_fog, v_refl, v_texcoord0, v_lightmapUV, v_extra, v_isTree, v_wPos, v_bpos
 
 #include <bgfx_shader.sh>
 #include <newb/main.sh>
@@ -13,23 +13,26 @@ uniform vec4 RenderDistance;
 
 float sideShadow(vec3 normal, float g) {
     float side = 1.0;
-    float shadowStrength = 0.3;
+    float shadowStrength = 0.4;
 
     if (DimensionID.x < 0.5) {
         vec3 lightDir = SunDirection.xyz;
         float sunDot = dot(normal, lightDir);
-        float intensity = smoothstep(0.0, 0.4, -sunDot);
+        
+        float thresholdCos = cos(radians(20.0));
+        float intensity = smoothstep(thresholdCos, -1.0, sunDot);
+        intensity = clamp(intensity, 0.0, 1.0);
         side = mix(1.0, shadowStrength, intensity);
 
-        float Fade = clamp(SunDirection.y * 0.6 + 0.6, 0.0, 1.0);
-        side = mix(1.0, side, Fade);
+        float heightFade = smoothstep(0.0, 0.1, SunDirection.y);
+        side = mix(1.0, side, heightFade);
     } else {
         vec3 fixedDir = normalize(vec3(0.5, 0.5, 0.0));
         float fixedDot = dot(normal, fixedDir);
-        float intensity = smoothstep(0.0, 0.4, -fixedDot);
+        float intensity = smoothstep(0.95, -1.0, fixedDot);
         side = mix(1.0, shadowStrength, intensity);
     }
-    return side ;
+    return side;
 }
 
 void main() {
@@ -40,6 +43,10 @@ void main() {
 
   vec4 diffuse = texture2D(s_MatTexture, v_texcoord0);
   
+  #ifdef ALPHA_TEST
+    if (diffuse.a < 0.6) discard;
+  #endif
+  
   vec2 offset = 1.0 / vec2(textureSize(s_MatTexture, 0));
   vec2 sampleUV = v_texcoord0 + offset * vec2(-0.15, -0.15);
   vec4 neighborTex = texture2D(s_MatTexture, sampleUV);
@@ -48,16 +55,17 @@ void main() {
     vec3 contrast = diffuse.rgb - neighbor;
     float dist = length(v_wPos);
     float fade = clamp(1.0 - dist / 13.0, 0.0, 1.0);
-    diffuse.rgb += contrast * 0.45 * fade;
+    diffuse.rgb += contrast * 0.28 * fade;
   }
   
   vec4 color = v_color0;
 
-  #ifdef ALPHA_TEST
+  // Leaves backface culling
+  /*#ifdef ALPHA_TEST
     if ((v_isTree > 0.5 && gl_FrontFacing) || (diffuse.a < 0.6)) {
       discard;
     }
-  #endif
+  #endif*/
 
   #if defined(SEASONS) && (defined(OPAQUE) || defined(ALPHA_TEST))
     diffuse.rgb *= mix(vec3(1.0,1.0,1.0), texture2D(s_SeasonsTexture, v_color1.xy).rgb * 2.0, v_color1.z);
@@ -78,17 +86,20 @@ void main() {
 
   diffuse.rgb *= color.rgb;
   
-  #ifndef ALPHA_TEST
-    if (v_extra.b <= 0.9) {
-      vec3 normal = normalize(cross(dFdx(v_wPos), dFdy(v_wPos)));
-      float ss = sideShadow(normal, v_color1.g);
-      diffuse.rgb *= ss;
+  float ao = mix(1.0, 0.8, smoothstep(0.74, 0.52, v_color1.g));
+  diffuse.rgb *= ao;
+  
+  vec3 wmap = normalize(cross(dFdx(v_wPos), dFdy(v_wPos)));
+  if (v_extra.b <= 0.9) {
+    float ss = sideShadow(wmap, v_color1.g);
+    diffuse.rgb *= ss;
+  }
+  
+  #if !defined(TRANSPARENT)
+    if (v_isTree <= 0.5 && !(v_extra.b > 0.9)) {
+      diffuse.rgb += glow;
     }
   #endif
-
-  if (v_isTree <= 0.5) {
-    diffuse.rgb += glow;
-  }
 
   if (v_extra.b > 0.9) {
     diffuse.rgb += v_refl.rgb*v_refl.a;
@@ -101,8 +112,6 @@ void main() {
       diffuse.rgb += v_refl.rgb*mask;
     }
   }
-  
-  //diffuse.rgb *= mix(1.0, 0.5, smoothstep(0.58, 0.56, v_color1.g));
 
   diffuse.rgb = mix(diffuse.rgb, v_fog.rgb, v_fog.a);
 

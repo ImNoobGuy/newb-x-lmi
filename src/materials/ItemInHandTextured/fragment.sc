@@ -1,4 +1,4 @@
-$input v_color0, v_fog, v_light, v_texcoord0, v_edgemap
+$input v_color0, v_fog, v_light, v_texcoord0, v_edgemap, v_normal
 
 #include <bgfx_shader.sh>
 #include <MinecraftRenderer.Materials/ActorUtil.dragonh>
@@ -46,6 +46,10 @@ void main() {
   albedo = applyOverlayColor(albedo, OverlayColor);
 
   albedo.rgb *= albedo.rgb * v_light.rgb;
+  
+  vec3 normal = normalize(v_normal);
+  float shades = mix(1.0, 0.4, abs(normal.x));
+  albedo.rgb *= shades;
   
   vec3 glow = nlGlow(s_MatTexture, v_texcoord0, 1.0);
   albedo.rgb += glow;
